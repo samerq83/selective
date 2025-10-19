@@ -1,0 +1,52 @@
+{
+  "name": "selective-trading",
+  "version": "1.0.0",
+  "description": "Milk Products Order Management System",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node scripts/seed.js",
+    "test-db": "ts-node scripts/test-db-connection.ts",
+    "test-connection": "node scripts/test-connection.js"
+  },
+  "keywords": [
+    "order-management",
+    "milk-products",
+    "nextjs",
+    "mongodb",
+    "typescript"
+  ],
+  "author": "Selective Trading",
+  "license": "MIT",
+  "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemailer": "^7.0.2",
+    "autoprefixer": "^10.4.21",
+    "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1",
+    "next": "^14.2.33",
+    "next-auth": "^4.24.0",
+    "nodemailer": "^6.9.8",
+    "postcss": "^8.5.6",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-icons": "^5.5.0",
+    "react-to-print": "^3.1.1",
+    "recharts": "^3.2.1",
+    "tailwindcss": "^3.4.18",
+    "xlsx": "^0.18.5",
+    "xlsx-js-style": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}

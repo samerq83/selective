@@ -1,0 +1,46 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "phone": "1234567890",
+      "name": "Admin",
+      "password": "$2a$10$YourHashedPasswordHere",
+      "isAdmin": true,
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "lastLogin": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "name": {
+        "en": "OAT",
+        "ar": "شوفان"
+      },
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "2",
+      "name": {
+        "en": "LACTOSE",
+        "ar": "لاكتوز"
+      },
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "3",
+      "name": {
+        "en": "COCONUT",
+        "ar": "جوز الهند"
+      },
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "orders": [],
+  "notifications": [],
+  "verificationCodes": []
+}
