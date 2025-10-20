@@ -278,6 +278,7 @@ const enTranslations = {
     topProducts: 'Top Products',
     topCustomers: 'Top Customers',
     orderStatusDistribution: 'Order Status Distribution',
+    totalOrders: 'Total Orders',
     totalCustomers: 'Total Customers',
     newCustomers: 'New Customers',
     averageOrderSize: 'Average Order Size',
