@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { t } from '@/lib/translations';
+import { t, translations, TranslationKey } from '@/lib/translations';
 import Navbar from '@/components/Navbar';
 import { FiEdit2, FiTrash2, FiClock, FiPackage, FiMessageSquare } from 'react-icons/fi';
 
@@ -417,7 +417,9 @@ export default function OrderDetailsPage() {
                 <div key={index} className="flex items-start gap-3 text-sm">
                   <div className="w-2 h-2 bg-primary-red rounded-full mt-2"></div>
                   <div>
-                    <p className="text-gray-900 font-medium">{t(entry.action, language)}</p>
+                    <p className="text-gray-900 font-medium">
+                      {translations[language][entry.action as TranslationKey] ?? entry.action}
+                    </p>
                     <p className="text-gray-500 text-xs">
                       {new Date(entry.timestamp).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}
                     </p>
