@@ -32,7 +32,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = (key: TranslationKey): string => {
-    return translations[language][key] || key;
+    const translationSet = translations[language] as typeof translations.en;
+
+    if (Object.prototype.hasOwnProperty.call(translationSet, key)) {
+      return translationSet[key];
+    }
+
+    const englishSet = translations.en;
+
+    if (Object.prototype.hasOwnProperty.call(englishSet, key)) {
+      return englishSet[key];
+    }
+
+    return key;
   };
 
   const dir = language === 'ar' ? 'rtl' : 'ltr';

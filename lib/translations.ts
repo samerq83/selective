@@ -123,7 +123,6 @@ const enTranslations = {
     todayOrders: "Today's Orders",
     allOrders: 'All Orders',
     customDate: 'Custom Date',
-    totalOrders: 'Total Orders',
     newOrders: 'New Orders',
     receivedOrders: 'Received Orders',
     customers: 'Customers',
@@ -150,16 +149,8 @@ const enTranslations = {
     markAllRead: 'Mark all as read',
     
     // Reports
-    dailyReport: 'Daily Report',
-    weeklyReport: 'Weekly Report',
-    monthlyReport: 'Monthly Report',
     productAnalysis: 'Product Analysis',
     customerAnalysis: 'Customer Analysis',
-    
-    // Settings
-    settings: 'Settings',
-    profile: 'Profile',
-    language: 'Language',
     
     // Messages
     orderCreated: 'Order created successfully',
@@ -195,11 +186,9 @@ const enTranslations = {
     
     // Quick Order
     reorder: 'Reorder',
-    noFavorites: 'No favorite orders yet',
     createFirstFavorite: 'Create your first favorite',
     addFavorite: 'Add Favorite',
     useThisFavorite: 'Use this favorite',
-    confirmDeleteFavorite: 'Are you sure you want to delete this favorite?',
     favoriteDeleted: 'Favorite deleted successfully',
     errorDeletingFavorite: 'Error deleting favorite',
     order: 'Order',
@@ -255,7 +244,6 @@ const enTranslations = {
     saving: 'Saving...',
     
     // Customers
-    customers: 'Customers',
     customersDescription: 'Manage customer accounts',
     searchCustomers: 'Search by phone or name',
     allCustomers: 'All Customers',
@@ -281,7 +269,6 @@ const enTranslations = {
     errorOccurred: 'An error occurred',
     
     // Reports
-    reports: 'Reports',
     reportsDescription: 'View detailed analytics and reports',
     startDate: 'Start Date',
     endDate: 'End Date',
@@ -291,17 +278,11 @@ const enTranslations = {
     topProducts: 'Top Products',
     topCustomers: 'Top Customers',
     orderStatusDistribution: 'Order Status Distribution',
-    totalOrders: 'Total Orders',
-    totalItems: 'Total Items',
     totalCustomers: 'Total Customers',
     newCustomers: 'New Customers',
     averageOrderSize: 'Average Order Size',
-    dailyReport: 'Daily Report',
-    weeklyReport: 'Weekly Report',
-    monthlyReport: 'Monthly Report',
     
     // Settings
-    settings: 'Settings',
     settingsDescription: 'Configure system settings',
     notificationSettings: 'Notification Settings',
     orderSettings: 'Order Settings',
@@ -330,13 +311,10 @@ const enTranslations = {
     backupCreated: 'Backup created successfully',
     
     // Favorites
-    favoriteOrders: 'Favorite Orders',
     favoriteOrdersDescription: 'Save your recurring orders as quick templates',
-    noFavorites: 'No favorite orders yet',
     noFavoritesDescription: 'Save your recurring orders to reuse them quickly',
     createFirstOrder: 'Create First Order',
     useTemplate: 'Use Template',
-    confirmDeleteFavorite: 'Are you sure you want to delete this favorite?',
     created: 'Created',
     favoritesLimit: 'Favorites Limit',
     saveAsTemplate: 'Save as Template',
@@ -457,7 +435,6 @@ const arTranslations = {
     
     // Quick Order
     quickOrder: 'طلب سريع',
-    favoriteOrders: 'الطلبات المفضلة',
     saveFavorite: 'حفظ كمفضل',
     reorderLast: 'إعادة آخر طلب',
     favoriteName: 'اسم المفضل',

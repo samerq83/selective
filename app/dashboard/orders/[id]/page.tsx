@@ -187,18 +187,19 @@ export default function OrderDetailsPage() {
     return order?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
   };
 
-  const resolveHistoryLabel = (action: string, lang: Language): string => {
+  const resolveHistoryLabel = (action: string, lang: keyof typeof translations): string => {
     const key = action as TranslationKey;
-    const translationSet = translations[lang];
+    const translationSet = translations[lang] as typeof translations.en;
 
     if (Object.prototype.hasOwnProperty.call(translationSet, key)) {
       return translationSet[key];
     }
 
-    // Fallback to English dictionary before returning the raw action
-    return Object.prototype.hasOwnProperty.call(translations.en, key)
-      ? translations.en[key]
-      : action;
+    if (Object.prototype.hasOwnProperty.call(translations.en, key)) {
+      return translations.en[key];
+    }
+
+    return action;
   };
 
   if (loading) {
