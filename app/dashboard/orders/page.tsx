@@ -14,6 +14,7 @@ interface OrderItem {
     _id: string;
     nameEn: string;
     nameAr: string;
+    image?: string;
   };
   productName?: {
     en: string;
