@@ -378,7 +378,7 @@ export default function DashboardPage() {
                 {language === 'ar' ? 'المنتجات:' : 'Products:'}
               </h4>
               <div className="space-y-2">
-                {selectedOrder.items.map((item, index) => (
+                {selectedOrder.items?.map((item, index) => (
                   <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center overflow-hidden">

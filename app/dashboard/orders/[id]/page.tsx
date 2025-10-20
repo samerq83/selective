@@ -187,6 +187,20 @@ export default function OrderDetailsPage() {
     return order?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
   };
 
+  const resolveHistoryLabel = (action: string, lang: Language): string => {
+    const key = action as TranslationKey;
+    const translationSet = translations[lang];
+
+    if (Object.prototype.hasOwnProperty.call(translationSet, key)) {
+      return translationSet[key];
+    }
+
+    // Fallback to English dictionary before returning the raw action
+    return Object.prototype.hasOwnProperty.call(translations.en, key)
+      ? translations.en[key]
+      : action;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -418,7 +432,7 @@ export default function OrderDetailsPage() {
                   <div className="w-2 h-2 bg-primary-red rounded-full mt-2"></div>
                   <div>
                     <p className="text-gray-900 font-medium">
-                      {translations[language][entry.action as TranslationKey] ?? entry.action}
+                      {resolveHistoryLabel(entry.action, language)}
                     </p>
                     <p className="text-gray-500 text-xs">
                       {new Date(entry.timestamp).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}

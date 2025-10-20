@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { ServerApiVersion } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/selective-trading';
 const ALLOW_INSECURE_TLS = process.env.ALLOW_INSECURE_TLS === 'true';
@@ -29,14 +30,14 @@ async function connectDB() {
   }
 
   if (!cached.promise) {
-    const opts = {
+    const opts: mongoose.ConnectOptions = {
       bufferCommands: false,
       serverSelectionTimeoutMS: 15000,
       tls: true,
       tlsAllowInvalidCertificates: ALLOW_INSECURE_TLS,
       tlsInsecure: ALLOW_INSECURE_TLS,
       serverApi: {
-        version: '1',
+        version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
       },

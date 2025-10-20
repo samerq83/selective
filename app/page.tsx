@@ -61,10 +61,10 @@ export default function HomePage() {
         {/* Welcome Card */}
         <div className="card animate-slide-up">
           <h2 className="text-2xl font-bold text-primary-black mb-2 text-center">
-            {t('welcome', language)}
+            {t('welcome')}
           </h2>
           <p className="text-gray-600 text-center mb-8">
-            {t('welcomeMessage', language)}
+            {t('welcomeMessage')}
           </p>
 
           <div className="space-y-4">
@@ -72,7 +72,7 @@ export default function HomePage() {
             <Link href="/login" className="block">
               <button className="btn-primary w-full flex items-center justify-center gap-3">
                 <FaSignInAlt className="text-xl" />
-                {t('login', language)}
+                {t('login')}
               </button>
             </Link>
 
@@ -80,14 +80,14 @@ export default function HomePage() {
             <Link href="/signup" className="block">
               <button className="btn-outline w-full flex items-center justify-center gap-3">
                 <FaUserPlus className="text-xl" />
-                {t('signUp', language)}
+                {t('signUp')}
               </button>
             </Link>
           </div>
 
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
-              {t('secureLogin', language)}
+              {t('secureLogin')}
             </p>
           </div>
         </div>
