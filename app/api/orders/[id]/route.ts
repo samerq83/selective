@@ -154,7 +154,7 @@ export async function PUT(
 
       // Validate products exist in MongoDB
       const productIds = items.map((item: any) => item.product);
-      const products = await Product.find({ _id: { $in: productIds } });
+      const products = await Product.find({ _id: { $in: productIds } }) as any[];
 
       if (products.length !== items.length) {
         console.log('[Order Update] Some products not found');
@@ -165,7 +165,7 @@ export async function PUT(
       }
 
       // Check availability
-      const unavailableProducts = products.filter(p => !p.isAvailable);
+      const unavailableProducts = products.filter((p: any) => !p.isAvailable);
       if (unavailableProducts.length > 0) {
         return NextResponse.json(
           { error: 'Some products are unavailable' },
@@ -175,7 +175,7 @@ export async function PUT(
 
       // Prepare order items
       order.items = items.map((item: any) => {
-        const product = products.find(p => p._id.toString() === item.product);
+        const product = products.find((p: any) => p._id.toString() === item.product);
         return {
           product: item.product,
           productName: {
