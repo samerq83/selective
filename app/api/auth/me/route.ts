@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { findUserById } from '@/lib/simple-db';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     console.log('[Auth Me] Request initiated');

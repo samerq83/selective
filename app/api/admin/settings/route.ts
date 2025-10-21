@@ -3,6 +3,8 @@ import dbConnect from '@/lib/mongodb';
 import Settings from '@/models/Settings';
 import { requireAdmin } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     await requireAdmin();
