@@ -62,6 +62,7 @@ const enTranslations = {
     backToHome: 'Back to Home',
     phoneAlreadyExists: 'Phone number already registered',
     emailAlreadyExists: 'Email already registered',
+    language: 'Language',
     
     // Products
     products: 'Products',
@@ -232,6 +233,7 @@ const enTranslations = {
     productAvailabilityNote: 'When you mark a product as unavailable, customers will not be able to order it.',
 
     // Profile
+    profile: 'Profile',
     profileHeading: 'Profile',
     profileDescription: 'Manage your personal information',
     phone: 'Phone Number',
@@ -284,6 +286,7 @@ const enTranslations = {
     averageOrderSize: 'Average Order Size',
     
     // Settings
+    settings: 'Settings',
     settingsDescription: 'Configure system settings',
     notificationSettings: 'Notification Settings',
     orderSettings: 'Order Settings',
@@ -312,6 +315,7 @@ const enTranslations = {
     backupCreated: 'Backup created successfully',
     
     // Favorites
+    noFavorites: 'No Favorite Orders',
     favoriteOrdersDescription: 'Save your recurring orders as quick templates',
     noFavoritesDescription: 'Save your recurring orders to reuse them quickly',
     createFirstOrder: 'Create First Order',
@@ -323,6 +327,7 @@ const enTranslations = {
     enterTemplateName: 'Please enter template name',
     selectProductsFirst: 'Please select products first',
     templateSaved: 'Template saved successfully',
+    confirmDeleteFavorite: 'Are you sure you want to delete this favorite?',
     noProducts: 'No products available',
 } as const;
 
@@ -385,6 +390,7 @@ const arTranslations = {
     backToHome: 'العودة للرئيسية',
     phoneAlreadyExists: 'رقم الهاتف مسجل بالفعل',
     emailAlreadyExists: 'البريد الإلكتروني مسجل بالفعل',
+    language: 'اللغة',
     
     // Products
     products: 'المنتجات',
@@ -445,11 +451,8 @@ const arTranslations = {
     todayOrders: 'طلبات اليوم',
     allOrders: 'جميع الطلبات',
     customDate: 'تاريخ مخصص',
-    totalOrders: 'إجمالي الطلبات',
     newOrders: 'طلبات جديدة',
     receivedOrders: 'طلبات مستلمة',
-    customers: 'العملاء',
-    reports: 'التقارير',
     
     // Admin
     admin: 'المدير',
@@ -477,11 +480,6 @@ const arTranslations = {
     monthlyReport: 'تقرير شهري',
     productAnalysis: 'تحليل المنتجات',
     customerAnalysis: 'تحليل العملاء',
-    
-    // Settings
-    settings: 'الإعدادات',
-    profile: 'الملف الشخصي',
-    language: 'اللغة',
     
     // Messages
     orderCreated: 'تم إنشاء الطلب بنجاح',
@@ -517,11 +515,9 @@ const arTranslations = {
     
     // Quick Order
     reorder: 'إعادة الطلب',
-    noFavorites: 'لا توجد طلبات مفضلة بعد',
     createFirstFavorite: 'أنشئ أول طلب مفضل',
     addFavorite: 'إضافة مفضل',
     useThisFavorite: 'استخدام هذا المفضل',
-    confirmDeleteFavorite: 'هل أنت متأكد من حذف هذا المفضل؟',
     favoriteDeleted: 'تم حذف المفضل بنجاح',
     errorDeletingFavorite: 'خطأ في حذف المفضل',
     order: 'طلب',
@@ -566,6 +562,7 @@ const arTranslations = {
     
     // Profile
     profile: 'الملف الشخصي',
+    profileHeading: 'الملف الشخصي',
     profileDescription: 'إدارة معلوماتك الشخصية',
     phone: 'رقم الهاتف',
     phoneCannotChange: 'لا يمكن تغيير رقم الهاتف',
@@ -614,13 +611,9 @@ const arTranslations = {
     topCustomers: 'العملاء الأكثر طلباً',
     orderStatusDistribution: 'توزيع حالات الطلبات',
     totalOrders: 'إجمالي الطلبات',
-    totalItems: 'إجمالي القطع',
     totalCustomers: 'إجمالي العملاء',
     newCustomers: 'عملاء جدد',
     averageOrderSize: 'متوسط حجم الطلب',
-    dailyReport: 'تقرير يومي',
-    weeklyReport: 'تقرير أسبوعي',
-    monthlyReport: 'تقرير شهري',
     
     // Settings
     settings: 'الإعدادات',

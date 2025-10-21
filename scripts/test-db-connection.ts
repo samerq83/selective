@@ -6,12 +6,16 @@ async function testConnection() {
     const mongoose = await connectDB();
     
     // اختبار الاتصال بإرسال أمر ping
-    const adminDb = mongoose.connection.db.admin();
+    const db = mongoose.connection.db;
+    if (!db) {
+      throw new Error('Database connection is not available');
+    }
+    const adminDb = db.admin();
     const result = await adminDb.ping();
     
     console.log('✅ تم الاتصال بنجاح بقاعدة البيانات MongoDB Atlas!');
     console.log('📊 معلومات الاتصال:');
-    console.log(`- اسم قاعدة البيانات: ${mongoose.connection.db.databaseName}`);
+    console.log(`- اسم قاعدة البيانات: ${db.databaseName}`);
     console.log(`- حالة الاتصال: ${mongoose.connection.readyState === 1 ? 'متصل' : 'غير متصل'}`);
     console.log(`- نتيجة الاختبار: ${JSON.stringify(result)}`);
     
