@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Update verification code
     await VerificationCode.updateOne(
-      { _id: (existing._id as any) },
+      { _id: existing._id },
       {
         code,
         expiresAt,
