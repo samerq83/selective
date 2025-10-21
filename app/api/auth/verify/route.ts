@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Generate token
     const token = generateToken({
-      userId: user._id.toString(),
+      userId: (user._id as any).toString(),
       phone: user.phone,
       isAdmin: user.isAdmin,
     });
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       user: {
-        id: user._id.toString(),
+        id: (user._id as any).toString(),
         phone: user.phone,
         companyName: user.companyName,
         name: user.name,

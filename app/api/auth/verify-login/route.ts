@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
 
     const token = generateToken({
-      userId: user._id.toString(),
+      userId: (user._id as any).toString(),
       phone: user.phone,
       isAdmin: user.isAdmin,
     });
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       user: {
-        id: user._id.toString(),
+        id: (user._id as any).toString(),
         phone: user.phone,
         name: user.name || '',
         email: user.email || '',

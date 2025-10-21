@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       console.log('[Login Check] Device already verified, issuing session token');
 
       const token = generateToken({
-        userId: user._id.toString(),
+        userId: (user._id as any).toString(),
         phone: user.phone,
         isAdmin: user.isAdmin,
       });
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         success: true,
         needsVerification: false,
         user: {
-          id: user._id.toString(),
+          id: (user._id as any).toString(),
           phone: user.phone,
           name: user.name || '',
           email: user.email || '',
