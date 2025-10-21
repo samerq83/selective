@@ -26,7 +26,7 @@ export async function GET(
     const order = await Order.findById(params.id)
       .populate('customer')
       .populate('items.product')
-      .lean();
+      .lean() as any;
 
     if (!order) {
       console.log('[Order Details] Order not found:', params.id);
@@ -108,7 +108,7 @@ export async function PUT(
     console.log('[Order Update] Update data:', { items: items?.length, message, status });
 
     // Fetch order from MongoDB
-    const order = await Order.findById(params.id).populate('customer').populate('items.product');
+    const order = await Order.findById(params.id).populate('customer').populate('items.product') as any;
 
     if (!order) {
       console.log('[Order Update] Order not found:', params.id);
@@ -221,7 +221,7 @@ export async function PUT(
     const updatedOrder = await Order.findById(order._id)
       .populate('customer')
       .populate('items.product')
-      .lean();
+      .lean() as any;
 
     // Format response
     const populatedOrder = {

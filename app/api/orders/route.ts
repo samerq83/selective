@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       .populate('customer')
       .populate('items.product')
       .sort({ createdAt: -1 })
-      .lean();
+      .lean() as any[];
 
     // Format orders for response
     const formattedOrders = orders.map(order => ({
