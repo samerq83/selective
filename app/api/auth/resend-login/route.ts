@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { formatPhone } from '@/lib/utils';
-import { findUserByPhone, saveVerificationCode } from '@/lib/simple-db';
 import { sendVerificationEmail } from '@/lib/email';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
+import VerificationCode from '@/models/VerificationCode';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     const { phone } = await request.json();
     console.log('[Resend Login] Request for:', phone);
 
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const formattedPhone = formatPhone(phone);
-    const user = findUserByPhone(formattedPhone);
+    const user = await User.findOne({ phone: formattedPhone });
 
     if (!user) {
       return NextResponse.json(
@@ -44,9 +48,12 @@ export async function POST(request: NextRequest) {
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
-    saveVerificationCode({
+    // Save verification code to MongoDB
+    await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
+    
+    await VerificationCode.create({
       phone: formattedPhone,
-      email: user.email.toLowerCase(),
+      email: user.email?.toLowerCase(),
       companyName: user.companyName,
       name: user.name,
       address: user.address,
@@ -56,7 +63,7 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      await sendVerificationEmail(user.email, code, user.name ?? user.email);
+      await sendVerificationEmail(user.email, code, user.name || user.email);
       console.log('[Resend Login] Verification email resent to:', user.email);
     } catch (emailError) {
       console.error('[Resend Login] Error sending email:', emailError);

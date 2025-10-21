@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IUser extends Document {
   phone: string;
+  email?: string;
   companyName?: string;
   name?: string;
   address?: string;
@@ -19,6 +20,12 @@ const UserSchema: Schema<IUser> = new Schema(
       required: true,
       unique: true,
       trim: true,
+    },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      sparse: true,
     },
     companyName: {
       type: String,
@@ -51,6 +58,7 @@ const UserSchema: Schema<IUser> = new Schema(
 
 // Index for faster queries
 UserSchema.index({ phone: 1 });
+UserSchema.index({ email: 1 });
 UserSchema.index({ isAdmin: 1 });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { formatPhone } from '@/lib/utils';
-import { createUser, readDB, writeDB } from '@/lib/simple-db';
 import { generateToken } from '@/lib/auth';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
+import VerificationCode from '@/models/VerificationCode';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     const { phone, code } = await request.json();
     console.log('[Verify] Verification attempt:', { phone, code });
 
@@ -18,26 +22,26 @@ export async function POST(request: NextRequest) {
     }
 
     const formattedPhone = formatPhone(phone);
-    const db = readDB();
 
     // Find verification code
-    const verificationCodes = db.verificationCodes ?? [];
-    const verificationIndex = verificationCodes.findIndex(
-      (vc: any) => vc.phone === formattedPhone && vc.code === code && vc.type === 'signup'
-    );
+    const verification = await VerificationCode.findOne({
+      phone: formattedPhone,
+      code,
+      type: 'signup',
+    });
 
-    if (verificationIndex === -1) {
+    if (!verification) {
       return NextResponse.json(
         { error: 'Invalid verification code' },
         { status: 400 }
       );
     }
 
-    const verification = verificationCodes[verificationIndex];
-
-    if (!verification) {
+    // Check if code expired
+    if (new Date() > verification.expiresAt) {
+      await VerificationCode.deleteMany({ phone: formattedPhone, type: 'signup' });
       return NextResponse.json(
-        { error: 'Invalid verification code' },
+        { error: 'Verification code expired' },
         { status: 400 }
       );
     }
@@ -49,21 +53,8 @@ export async function POST(request: NextRequest) {
       address = '',
     } = verification;
 
-    // Check if code expired
-    if (new Date() > new Date(verification.expiresAt)) {
-      // Remove expired code
-      verificationCodes.splice(verificationIndex, 1);
-      db.verificationCodes = verificationCodes;
-      writeDB(db);
-      
-      return NextResponse.json(
-        { error: 'Verification code expired' },
-        { status: 400 }
-      );
-    }
-
     // Create user
-    const user = createUser({
+    const user = await User.create({
       phone: formattedPhone,
       companyName,
       name: verificationName || formattedPhone,
@@ -73,21 +64,12 @@ export async function POST(request: NextRequest) {
       isActive: true,
     });
 
-    // Remove verification code - read DB again after createUser to avoid overwriting
-    const dbAfterUserCreation = readDB();
-    const updatedVerificationCodes = dbAfterUserCreation.verificationCodes ?? [];
-    const newVerificationIndex = updatedVerificationCodes.findIndex(
-      (vc: any) => vc.phone === formattedPhone && vc.code === code && vc.type === 'signup'
-    );
-    if (newVerificationIndex !== -1) {
-      updatedVerificationCodes.splice(newVerificationIndex, 1);
-      dbAfterUserCreation.verificationCodes = updatedVerificationCodes;
-      writeDB(dbAfterUserCreation);
-    }
+    // Remove verification code
+    await VerificationCode.deleteMany({ phone: formattedPhone, type: 'signup' });
 
     // Generate token
     const token = generateToken({
-      userId: user.id,
+      userId: user._id.toString(),
       phone: user.phone,
       isAdmin: user.isAdmin,
     });
@@ -96,7 +78,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       user: {
-        id: user.id,
+        id: user._id.toString(),
         phone: user.phone,
         companyName: user.companyName,
         name: user.name,
@@ -121,7 +103,7 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    console.log('[Verify] User created and logged in:', user.id);
+    console.log('[Verify] User created and logged in:', user._id);
 
     return response;
   } catch (error) {

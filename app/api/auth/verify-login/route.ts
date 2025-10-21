@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { formatPhone } from '@/lib/utils';
-import { deleteVerificationCode, findUserByPhone, findVerificationCode } from '@/lib/simple-db';
 import { generateToken } from '@/lib/auth';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
+import VerificationCode from '@/models/VerificationCode';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     const { phone, code } = await request.json();
     console.log('[Verify Login] Verification attempt:', { phone, code });
 
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const formattedPhone = formatPhone(phone);
-    const user = findUserByPhone(formattedPhone);
+    const user = await User.findOne({ phone: formattedPhone });
 
     if (!user) {
       return NextResponse.json(
@@ -34,7 +38,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const verification = findVerificationCode(formattedPhone, code, 'login');
+    const verification = await VerificationCode.findOne({
+      phone: formattedPhone,
+      code,
+      type: 'login',
+    });
 
     if (!verification) {
       return NextResponse.json(
@@ -43,18 +51,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (new Date() > new Date(verification.expiresAt)) {
-      deleteVerificationCode(formattedPhone, 'login');
+    if (new Date() > verification.expiresAt) {
+      await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
       return NextResponse.json(
         { error: 'Verification code expired' },
         { status: 400 }
       );
     }
 
-    deleteVerificationCode(formattedPhone, 'login');
+    await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
 
     const token = generateToken({
-      userId: user.id,
+      userId: user._id.toString(),
       phone: user.phone,
       isAdmin: user.isAdmin,
     });
@@ -62,10 +70,10 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       user: {
-        id: user.id,
+        id: user._id.toString(),
         phone: user.phone,
-        name: user.name,
-        email: user.email,
+        name: user.name || '',
+        email: user.email || '',
         isAdmin: user.isAdmin,
       },
     });
@@ -86,7 +94,7 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    console.log('[Verify Login] Login verified for:', user.id);
+    console.log('[Verify Login] Login verified for:', user._id);
 
     return response;
   } catch (error) {

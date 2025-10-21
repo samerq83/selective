@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { formatPhone } from '@/lib/utils';
-import { findUserByPhone, saveVerificationCode } from '@/lib/simple-db';
 import { sendVerificationEmail } from '@/lib/email';
 import { generateToken } from '@/lib/auth';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
+import VerificationCode from '@/models/VerificationCode';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     const { phone } = await request.json();
     console.log('[Login Check] Login check for:', phone);
 
@@ -21,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     const formattedPhone = formatPhone(phone);
 
-    const user = findUserByPhone(formattedPhone);
+    const user = await User.findOne({ phone: formattedPhone });
     if (!user) {
       return NextResponse.json(
         { error: 'Phone number not registered. Please sign up first.' },
@@ -36,7 +40,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if email exists for user
     if (!user.email) {
+      // For users without email in the system, update with provided email or create a placeholder
+      console.log('[Login Check] User has no email associated');
       return NextResponse.json(
         { error: 'No email is associated with this account. Please contact support.' },
         { status: 500 }
@@ -50,7 +57,7 @@ export async function POST(request: NextRequest) {
       console.log('[Login Check] Device already verified, issuing session token');
 
       const token = generateToken({
-        userId: user.id,
+        userId: user._id.toString(),
         phone: user.phone,
         isAdmin: user.isAdmin,
       });
@@ -59,10 +66,10 @@ export async function POST(request: NextRequest) {
         success: true,
         needsVerification: false,
         user: {
-          id: user.id,
+          id: user._id.toString(),
           phone: user.phone,
-          name: user.name,
-          email: user.email,
+          name: user.name || '',
+          email: user.email || '',
           isAdmin: user.isAdmin,
         },
       });
@@ -89,9 +96,12 @@ export async function POST(request: NextRequest) {
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
-    saveVerificationCode({
+    // Save verification code to MongoDB
+    await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
+    
+    await VerificationCode.create({
       phone: formattedPhone,
-      email: user.email.toLowerCase(),
+      email: user.email?.toLowerCase(),
       companyName: user.companyName,
       name: user.name,
       address: user.address,
@@ -101,7 +111,7 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      await sendVerificationEmail(user.email, code, user.name ?? user.email);
+      await sendVerificationEmail(user.email, code, user.name || user.email);
       console.log('[Login Check] Verification email sent to:', user.email);
     } catch (emailError) {
       console.error('[Login Check] Error sending email:', emailError);

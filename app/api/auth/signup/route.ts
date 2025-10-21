@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { formatPhone } from '@/lib/utils';
-import { findUserByPhone, findUserByEmail, readDB, writeDB } from '@/lib/simple-db';
 import { sendVerificationEmail } from '@/lib/email';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
+import VerificationCode from '@/models/VerificationCode';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     const { phone, companyName, name, email, address } = await request.json();
     console.log('[Sign Up] Sign up attempt:', { phone, email });
 
@@ -21,7 +25,7 @@ export async function POST(request: NextRequest) {
     const formattedPhone = formatPhone(phone);
 
     // Check if user already exists
-    const existingUserByPhone = findUserByPhone(formattedPhone);
+    const existingUserByPhone = await User.findOne({ phone: formattedPhone });
     if (existingUserByPhone) {
       return NextResponse.json(
         { error: 'Phone number already registered' },
@@ -29,7 +33,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingUserByEmail = findUserByEmail(email.toLowerCase());
+    const existingUserByEmail = await User.findOne({ email: email.toLowerCase() });
     if (existingUserByEmail) {
       return NextResponse.json(
         { error: 'Email already registered' },
@@ -41,18 +45,11 @@ export async function POST(request: NextRequest) {
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
 
-    // Store verification code
-    const db = readDB();
-    if (!db.verificationCodes) {
-      db.verificationCodes = [];
-    }
-
     // Remove any existing codes for this phone
-    db.verificationCodes = db.verificationCodes.filter(
-      (vc: any) => vc.phone !== formattedPhone
-    );
+    await VerificationCode.deleteMany({ phone: formattedPhone, type: 'signup' });
 
-    db.verificationCodes.push({
+    // Store verification code
+    await VerificationCode.create({
       phone: formattedPhone,
       email: email.toLowerCase(),
       companyName,
@@ -61,10 +58,7 @@ export async function POST(request: NextRequest) {
       code,
       expiresAt,
       type: 'signup',
-      createdAt: new Date(),
     });
-
-    writeDB(db);
 
     // Send verification email
     try {
