@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
-import { findUserById } from '@/lib/simple-db';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,8 @@ export async function GET() {
 
     console.log('[Auth Me] Auth user found:', authUser);
 
-    const user = findUserById(authUser.userId);
+    await connectDB();
+    const user = await User.findById(authUser.userId);
 
     if (!user) {
       console.log('[Auth Me] User not found in database:', authUser.userId);
@@ -29,11 +31,11 @@ export async function GET() {
       );
     }
 
-    console.log('[Auth Me] User found:', { id: user.id, phone: user.phone, isAdmin: user.isAdmin });
+    console.log('[Auth Me] User found:', { id: user._id, phone: user.phone, isAdmin: user.isAdmin });
 
     return NextResponse.json({
       user: {
-        id: user.id.toString(),
+        id: (user._id as any).toString(),
         phone: user.phone,
         companyName: user.companyName,
         name: user.name,
