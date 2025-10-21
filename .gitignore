@@ -22,8 +22,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# local env files - لا تضع الأسرار أبداً!
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.production
 
 # vercel
