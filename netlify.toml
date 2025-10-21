@@ -1,0 +1,35 @@
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = ".next"
+
+# Allow Next.js to handle API routes directly
+# No redirect needed - Next.js handles /api/* internally
+
+# SPA routing for client-side navigation
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+[context.production.environment]
+  NODE_ENV = "production"
+  NEXT_PUBLIC_BASE_URL = "https://selectiveco.netlify.app"
+  NEXTAUTH_URL = "https://selectiveco.netlify.app"
+  JWT_SECRET = "40HWGiezgMIvt7vXitcOD0vGshJvctrW"
+  NEXTAUTH_SECRET = "dev_nextauth_secret_key_for_local_development"
+  COOKIE_SECRET = "dev_cookie_secret_key_for_local_development"
+  MONGODB_URI = "mongodb+srv://mr000000_db_user:zohwlq0wOWpwihaK@cluster0.wv2o5h4.mongodb.net/selective-trading?retryWrites=true&w=majority&appName=Cluster0"
+  SMTP_HOST = "smtp.gmail.com"
+  SMTP_PORT = "465"
+  EMAIL_USER = "mr000000@gmail.com"
+  EMAIL_PASSWORD = "vofgsomjwkadssjo"
+  EMAIL_FROM = "Selective Trading <no-reply@selective-trading.com>"
+  UPLOAD_DIR = "public/uploads"
+  MAX_UPLOAD_SIZE_MB = "5"
+  ENABLE_OTP = "true"
+  ENABLE_EMAIL_NOTIFICATIONS = "true"
+  DEFAULT_LANGUAGE = "ar"
+  SUPPORTED_LANGUAGES = "ar,en"
+  ADMIN_PHONE = "+966501234567"

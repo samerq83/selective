@@ -3,6 +3,8 @@ import { generateToken } from '@/lib/auth';
 import { formatPhone } from '@/lib/utils';
 import { findUserByPhone, createUser, updateUser } from '@/lib/simple-db';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { phone } = await request.json();

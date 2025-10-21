@@ -102,100 +102,146 @@ interface DB {
   };
 }
 
-function ensureDBExists() {
-  const dir = path.dirname(DB_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  
-  if (!fs.existsSync(DB_PATH)) {
-    const initialData: DB = {
-      users: [
-        {
-          id: '1',
-          phone: '1234567890',
-          name: 'Admin',
-          companyName: 'Selective Trading',
-          email: 'admin@selectivetrading.com',
-          address: 'Admin Address',
-          isAdmin: true,
-          isActive: true,
-        },
-        {
-          id: '2',
-          phone: '9876543210',
-          name: 'Test Customer',
-          companyName: 'Test Company',
-          email: 'customer@test.com',
-          address: 'Test Address',
-          isAdmin: false,
-          isActive: true,
-        },
-      ],
-      verificationCodes: [],
-      products: [
-        {
-          id: '1',
-          name: { en: 'Almond Milk', ar: 'حليب اللوز' },
-          slug: 'almond',
-          image: '/images/almond.png',
-          isAvailable: true,
-          order: 1,
-        },
-        {
-          id: '2',
-          name: { en: 'Coconut Milk', ar: 'حليب جوز الهند' },
-          slug: 'coconut',
-          image: '/images/coconut.png',
-          isAvailable: true,
-          order: 2,
-        },
-        {
-          id: '3',
-          name: { en: 'Soy Milk', ar: 'حليب الصويا' },
-          slug: 'soy',
-          image: '/images/soy.png',
-          isAvailable: true,
-          order: 3,
-        },
-        {
-          id: '4',
-          name: { en: 'Oat Milk', ar: 'حليب الشوفان' },
-          slug: 'oat',
-          image: '/images/oat.png',
-          isAvailable: true,
-          order: 4,
-        },
-        {
-          id: '5',
-          name: { en: 'Lactose Free Milk', ar: 'حليب خالي من اللاكتوز' },
-          slug: 'lactose-free',
-          image: '/images/lactose-free.png',
-          isAvailable: true,
-          order: 5,
-        },
-      ],
-      orders: [],
-      notifications: [],
-      settings: {
-        orderSettings: {
-          editTimeLimit: 2,
-        },
+function getInitialData(): DB {
+  return {
+    users: [
+      {
+        id: '1',
+        phone: '1234567890',
+        name: 'Admin',
+        companyName: 'Selective Trading',
+        email: 'admin@selectivetrading.com',
+        address: 'Admin Address',
+        isAdmin: true,
+        isActive: true,
       },
-    };
-    fs.writeFileSync(DB_PATH, JSON.stringify(initialData, null, 2));
+      {
+        id: '2',
+        phone: '9876543210',
+        name: 'Test Customer',
+        companyName: 'Test Company',
+        email: 'customer@test.com',
+        address: 'Test Address',
+        isAdmin: false,
+        isActive: true,
+      },
+    ],
+    verificationCodes: [],
+    products: [
+      {
+        id: '1',
+        name: { en: 'Almond Milk', ar: 'حليب اللوز' },
+        slug: 'almond',
+        image: '/images/almond.png',
+        isAvailable: true,
+        order: 1,
+      },
+      {
+        id: '2',
+        name: { en: 'Coconut Milk', ar: 'حليب جوز الهند' },
+        slug: 'coconut',
+        image: '/images/coconut.png',
+        isAvailable: true,
+        order: 2,
+      },
+      {
+        id: '3',
+        name: { en: 'Soy Milk', ar: 'حليب الصويا' },
+        slug: 'soy',
+        image: '/images/soy.png',
+        isAvailable: true,
+        order: 3,
+      },
+      {
+        id: '4',
+        name: { en: 'Oat Milk', ar: 'حليب الشوفان' },
+        slug: 'oat',
+        image: '/images/oat.png',
+        isAvailable: true,
+        order: 4,
+      },
+      {
+        id: '5',
+        name: { en: 'Lactose Free Milk', ar: 'حليب خالي من اللاكتوز' },
+        slug: 'lactose-free',
+        image: '/images/lactose-free.png',
+        isAvailable: true,
+        order: 5,
+      },
+    ],
+    orders: [],
+    notifications: [],
+    settings: {
+      orderSettings: {
+        editTimeLimit: 2,
+      },
+    },
+  };
+}
+
+// In-memory database for Netlify (read-only filesystem)
+let memoryDB: DB | null = null;
+let isNetlifyEnvironment = false;
+
+function ensureDBExists() {
+  // Check if we're in Netlify (read-only filesystem)
+  try {
+    if (!isNetlifyEnvironment) {
+      const dir = path.dirname(DB_PATH);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      
+      if (!fs.existsSync(DB_PATH)) {
+        fs.writeFileSync(DB_PATH, JSON.stringify(getInitialData(), null, 2));
+      }
+    }
+  } catch (error) {
+    // If we can't write to filesystem, use in-memory storage
+    isNetlifyEnvironment = true;
+    if (!memoryDB) {
+      memoryDB = getInitialData();
+    }
   }
 }
 
 export function readDB(): DB {
   ensureDBExists();
-  const data = fs.readFileSync(DB_PATH, 'utf-8');
-  return JSON.parse(data);
+  
+  if (isNetlifyEnvironment || !fs.existsSync(DB_PATH)) {
+    if (!memoryDB) {
+      memoryDB = getInitialData();
+    }
+    return JSON.parse(JSON.stringify(memoryDB));
+  }
+  
+  try {
+    const data = fs.readFileSync(DB_PATH, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    // Fallback to in-memory
+    if (!memoryDB) {
+      memoryDB = getInitialData();
+    }
+    return JSON.parse(JSON.stringify(memoryDB));
+  }
 }
 
 export function writeDB(data: DB) {
   ensureDBExists();
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+  
+  if (isNetlifyEnvironment) {
+    memoryDB = JSON.parse(JSON.stringify(data));
+    return;
+  }
+  
+  try {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+  } catch (error) {
+    // Fallback to in-memory
+    isNetlifyEnvironment = true;
+    memoryDB = JSON.parse(JSON.stringify(data));
+  }
 }
 
 export function findUserByPhone(phone: string): User | undefined {

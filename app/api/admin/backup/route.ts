@@ -6,6 +6,8 @@ import Product from '@/models/Product';
 import FavoriteOrder from '@/models/FavoriteOrder';
 import { requireAdmin } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     await requireAdmin();

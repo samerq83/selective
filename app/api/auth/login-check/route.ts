@@ -5,6 +5,8 @@ import { findUserByPhone, saveVerificationCode } from '@/lib/simple-db';
 import { sendVerificationEmail } from '@/lib/email';
 import { generateToken } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { phone } = await request.json();
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
 
       response.cookies.set('auth-token', token, {
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 90 * 24 * 60 * 60,
         path: '/',
@@ -75,7 +77,7 @@ export async function POST(request: NextRequest) {
 
       response.cookies.set('auth-verified', 'true', {
         httpOnly: false,
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 90 * 24 * 60 * 60,
         path: '/',

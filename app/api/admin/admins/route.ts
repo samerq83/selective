@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readDB, writeDB, findUserByPhone, findUserByEmail } from '@/lib/simple-db';
 import { requireAdmin } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     await requireAdmin();

@@ -3,6 +3,8 @@ import dbConnect from '@/lib/mongodb';
 import Notification from '@/models/Notification';
 import { requireAdmin, requireAuth } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth();

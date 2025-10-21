@@ -34,8 +34,7 @@ async function connectDB() {
       bufferCommands: false,
       serverSelectionTimeoutMS: 15000,
       tls: true,
-      tlsAllowInvalidCertificates: ALLOW_INSECURE_TLS,
-      tlsInsecure: ALLOW_INSECURE_TLS,
+      ...(ALLOW_INSECURE_TLS && { tlsAllowInvalidCertificates: true }),
       serverApi: {
         version: ServerApiVersion.v1,
         strict: true,

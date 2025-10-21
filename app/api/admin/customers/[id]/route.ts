@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readDB, writeDB, updateUser } from '@/lib/simple-db';
 import { requireAdmin } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }

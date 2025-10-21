@@ -4,6 +4,8 @@ import FavoriteOrder from '@/models/FavoriteOrder';
 import Product from '@/models/Product';
 import { requireAuth } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const authUser = await requireAuth();

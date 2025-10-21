@@ -3,6 +3,8 @@ import { formatPhone } from '@/lib/utils';
 import { findUserByPhone, findUserByEmail, readDB, writeDB } from '@/lib/simple-db';
 import { sendVerificationEmail } from '@/lib/email';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { phone, companyName, name, email, address } = await request.json();
