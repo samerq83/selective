@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { 
-  findUserById, 
   findProductsByIds, 
   getSettings, 
   createOrder, 
@@ -9,6 +8,8 @@ import {
 } from '@/lib/simple-db';
 import { requireAuth } from '@/lib/auth';
 import { getEditDeadline } from '@/lib/utils';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +63,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const authUser = await requireAuth();
+    await connectDB();
 
     const body = await request.json();
     const { items, message } = body;
@@ -75,8 +77,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user details
-    const user = findUserById(authUser.userId);
+    // Get user details from MongoDB
+    const user = await User.findById(authUser.userId);
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
@@ -120,7 +122,7 @@ export async function POST(request: NextRequest) {
 
     // Create order
     const order = createOrder({
-      customer: authUser.userId,
+      customer: String(user._id),
       customerName: user.name || user.phone,
       customerPhone: user.phone,
       items: orderItems,
@@ -132,7 +134,7 @@ export async function POST(request: NextRequest) {
       history: [
         {
           action: 'created',
-          by: authUser.userId,
+          by: String(user._id),
           byName: user.name || user.phone,
           timestamp: new Date(),
         },
@@ -141,7 +143,7 @@ export async function POST(request: NextRequest) {
 
     // Create notification for customer
     createNotification({
-      user: authUser.userId,
+      user: String(user._id),
       type: 'order_created',
       title: {
         en: 'Order Created',

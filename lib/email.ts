@@ -8,15 +8,15 @@ async function getTransporter() {
   if (!transporter) {
     const nodemailer = await import('nodemailer');
     const emailUser = process.env.EMAIL_USER;
-    const emailPassword = process.env.EMAIL_PASSWORD;
+    const appPassword = process.env.APP_PASSWORD;
 
-    if (!emailUser || !emailPassword) {
+    if (!emailUser || !appPassword) {
       isFallbackTransport = true;
       transporter = nodemailer.default.createTransport({
         jsonTransport: true,
       });
       console.warn(
-        '[Email] EMAIL_USER or EMAIL_PASSWORD is missing. Using JSON transport fallback (emails are logged but not sent).'
+        '[Email] Using JSON transport fallback (verification codes will be logged to console).'
       );
     } else {
       isFallbackTransport = false;
@@ -24,9 +24,10 @@ async function getTransporter() {
         service: 'gmail',
         auth: {
           user: emailUser,
-          pass: emailPassword,
+          pass: appPassword,
         },
       });
+      console.log('[Email] Using Gmail SMTP transport for sending real emails.');
     }
   }
   return transporter;

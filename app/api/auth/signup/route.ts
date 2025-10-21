@@ -77,9 +77,11 @@ export async function POST(request: NextRequest) {
       message: 'Verification code sent to your email',
     });
   } catch (error) {
-    console.error('[Sign Up] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('[Sign Up] Error:', errorMessage);
+    console.error('[Sign Up] Full error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: `Internal server error: ${errorMessage}` },
       { status: 500 }
     );
   }

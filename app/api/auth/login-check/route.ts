@@ -128,9 +128,11 @@ export async function POST(request: NextRequest) {
       email: user.email,
     });
   } catch (error) {
-    console.error('[Login Check] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('[Login Check] Error:', errorMessage);
+    console.error('[Login Check] Full error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: `Internal server error: ${errorMessage}` },
       { status: 500 }
     );
   }
