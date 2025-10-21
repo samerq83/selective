@@ -3,19 +3,21 @@ import {
   findProductsByIds, 
   getSettings, 
   createOrder, 
-  createNotification,
-  getOrders 
+  createNotification
 } from '@/lib/simple-db';
 import { requireAuth } from '@/lib/auth';
 import { getEditDeadline } from '@/lib/utils';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
+import Order from '@/models/Order';
+import Product from '@/models/Product';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
     const authUser = await requireAuth();
+    await connectDB();
 
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get('status');
@@ -40,9 +42,41 @@ export async function GET(request: NextRequest) {
       query.createdAt = { $gte: startDate, $lte: endDate };
     }
 
-    const orders = getOrders(query);
+    // Fetch from MongoDB with product population
+    const orders = await Order.find(query)
+      .populate('customer')
+      .populate('items.product')
+      .sort({ createdAt: -1 })
+      .lean();
 
-    return NextResponse.json({ orders });
+    // Format orders for response
+    const formattedOrders = orders.map(order => ({
+      _id: order._id,
+      orderNumber: order.orderNumber,
+      customer: order.customer,
+      customerName: order.customerName,
+      customerPhone: order.customerPhone,
+      items: order.items.map((item: any) => ({
+        product: {
+          _id: item.product._id,
+          nameEn: item.product.name?.en,
+          nameAr: item.product.name?.ar,
+          image: item.product.image,
+        },
+        productName: item.productName,
+        quantity: item.quantity,
+      })),
+      totalItems: order.totalItems,
+      status: order.status,
+      message: order.message,
+      canEdit: order.canEdit,
+      editDeadline: order.editDeadline,
+      history: order.history,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    }));
+
+    return NextResponse.json({ orders: formattedOrders });
   } catch (error: any) {
     console.error('Get orders error:', error);
     

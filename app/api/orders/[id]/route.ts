@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
-import { readDB, writeDB, findProductsByIds, createNotification } from '@/lib/simple-db';
+import connectDB from '@/lib/mongodb';
+import Order from '@/models/Order';
+import Product from '@/models/Product';
 
 export async function GET(
   request: NextRequest,
@@ -18,8 +20,13 @@ export async function GET(
       );
     }
 
-    const db = readDB();
-    const order = db.orders.find(o => o.id === params.id);
+    await connectDB();
+
+    // Fetch order from MongoDB
+    const order = await Order.findById(params.id)
+      .populate('customer')
+      .populate('items.product')
+      .lean();
 
     if (!order) {
       console.log('[Order Details] Order not found:', params.id);
@@ -30,7 +37,7 @@ export async function GET(
     }
 
     // Check if user has access to this order
-    if (!authUser.isAdmin && order.customer !== authUser.userId) {
+    if (!authUser.isAdmin && order.customer._id.toString() !== authUser.userId) {
       console.log('[Order Details] Forbidden - user does not own this order');
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -38,31 +45,33 @@ export async function GET(
       );
     }
 
-    // Populate customer and product info
-    const customer = db.users.find(u => u.id === order.customer);
-    const items = order.items.map(item => {
-      const product = db.products.find(p => p.id === item.product);
-      return {
+    // Format order with complete product information
+    const populatedOrder = {
+      _id: order._id,
+      orderNumber: order.orderNumber,
+      customer: {
+        _id: order.customer._id,
+        name: order.customer.name,
+        phone: order.customer.phone,
+        companyName: order.customer.companyName,
+      },
+      items: order.items.map((item: any) => ({
         quantity: item.quantity,
         product: {
-          _id: item.product,
-          nameEn: item.productName.en,
-          nameAr: item.productName.ar,
-          image: product?.image || '',
+          _id: item.product._id,
+          nameEn: item.product.name?.en,
+          nameAr: item.product.name?.ar,
+          image: item.product.image,
         },
-      };
-    });
-
-    const populatedOrder = {
-      ...order,
-      _id: order.id,
-      customer: {
-        _id: customer?.id || '',
-        name: customer?.name || '',
-        phone: customer?.phone || '',
-        companyName: customer?.companyName || '',
-      },
-      items,
+      })),
+      totalItems: order.totalItems,
+      status: order.status,
+      message: order.message,
+      canEdit: order.canEdit,
+      editDeadline: order.editDeadline,
+      history: order.history,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
     };
 
     console.log('[Order Details] Order found and returned');
@@ -92,14 +101,16 @@ export async function PUT(
       );
     }
 
+    await connectDB();
+
     const body = await request.json();
     const { items, message, status } = body;
     console.log('[Order Update] Update data:', { items: items?.length, message, status });
 
-    const db = readDB();
-    const orderIndex = db.orders.findIndex(o => o.id === params.id);
+    // Fetch order from MongoDB
+    const order = await Order.findById(params.id).populate('customer').populate('items.product');
 
-    if (orderIndex === -1) {
+    if (!order) {
       console.log('[Order Update] Order not found:', params.id);
       return NextResponse.json(
         { error: 'Order not found' },
@@ -107,10 +118,8 @@ export async function PUT(
       );
     }
 
-    const order = db.orders[orderIndex];
-
     // Check permissions
-    const isOwner = order.customer === authUser.userId;
+    const isOwner = order.customer._id.toString() === authUser.userId;
     
     if (!authUser.isAdmin && !isOwner) {
       console.log('[Order Update] Forbidden - user does not own this order');
@@ -121,7 +130,6 @@ export async function PUT(
     }
 
     // Check if order can be edited (for customers)
-    // Customers can edit anytime as long as status is 'new' (not received by admin)
     if (!authUser.isAdmin && isOwner) {
       if (order.status !== 'new') {
         console.log('[Order Update] Cannot edit received order');
@@ -131,8 +139,6 @@ export async function PUT(
         );
       }
     }
-
-    const user = db.users.find(u => u.id === authUser.userId);
 
     // Update items if provided
     if (items) {
@@ -146,20 +152,40 @@ export async function PUT(
         );
       }
 
-      // Validate products
+      // Validate products exist in MongoDB
       const productIds = items.map((item: any) => item.product);
-      const products = findProductsByIds(productIds);
+      const products = await Product.find({ _id: { $in: productIds } });
 
-      const orderItems = items.map((item: any) => {
-        const product = products.find(p => p.id === item.product);
+      if (products.length !== items.length) {
+        console.log('[Order Update] Some products not found');
+        return NextResponse.json(
+          { error: 'Some products not found' },
+          { status: 400 }
+        );
+      }
+
+      // Check availability
+      const unavailableProducts = products.filter(p => !p.isAvailable);
+      if (unavailableProducts.length > 0) {
+        return NextResponse.json(
+          { error: 'Some products are unavailable' },
+          { status: 400 }
+        );
+      }
+
+      // Prepare order items
+      order.items = items.map((item: any) => {
+        const product = products.find(p => p._id.toString() === item.product);
         return {
           product: item.product,
-          productName: product!.name,
+          productName: {
+            en: product?.name?.en,
+            ar: product?.name?.ar,
+          },
           quantity: item.quantity,
         };
       });
-
-      order.items = orderItems;
+      
       order.totalItems = totalItems;
     }
 
@@ -175,21 +201,6 @@ export async function PUT(
       
       if (status === 'received') {
         order.canEdit = false;
-        
-        // Notify customer
-        createNotification({
-          user: order.customer,
-          type: 'order_received',
-          title: {
-            en: 'Order Received',
-            ar: 'تم استلام الطلب',
-          },
-          message: {
-            en: `Your order #${order.orderNumber} has been received`,
-            ar: `تم استلام طلبك رقم #${order.orderNumber}`,
-          },
-          relatedOrder: order.id,
-        });
       }
     }
 
@@ -197,58 +208,48 @@ export async function PUT(
     order.history.push({
       action: 'updated',
       by: authUser.userId,
-      byName: user?.name || user?.phone || 'Unknown',
+      byName: order.customer.name || order.customer.phone,
       timestamp: new Date(),
     });
 
     order.updatedAt = new Date();
 
     // Save to database
-    db.orders[orderIndex] = order;
-    writeDB(db);
+    await order.save();
 
-    // Notify customer if admin updated
-    if (authUser.isAdmin && !isOwner) {
-      createNotification({
-        user: order.customer,
-        type: 'order_updated',
-        title: {
-          en: 'Order Updated',
-          ar: 'تم تحديث الطلب',
-        },
-        message: {
-          en: `Your order #${order.orderNumber} has been updated`,
-          ar: `تم تحديث طلبك رقم #${order.orderNumber}`,
-        },
-        relatedOrder: order.id,
-      });
-    }
+    // Reload with populated data
+    const updatedOrder = await Order.findById(order._id)
+      .populate('customer')
+      .populate('items.product')
+      .lean();
 
-    // Populate response
-    const customer = db.users.find(u => u.id === order.customer);
-    const populatedItems = order.items.map(item => {
-      const product = db.products.find(p => p.id === item.product);
-      return {
+    // Format response
+    const populatedOrder = {
+      _id: updatedOrder?._id,
+      orderNumber: updatedOrder?.orderNumber,
+      customer: {
+        _id: updatedOrder?.customer._id,
+        name: updatedOrder?.customer.name,
+        phone: updatedOrder?.customer.phone,
+        companyName: updatedOrder?.customer.companyName,
+      },
+      items: updatedOrder?.items.map((item: any) => ({
         quantity: item.quantity,
         product: {
-          _id: item.product,
-          nameEn: item.productName.en,
-          nameAr: item.productName.ar,
-          image: product?.image || '',
+          _id: item.product._id,
+          nameEn: item.product.name?.en,
+          nameAr: item.product.name?.ar,
+          image: item.product.image,
         },
-      };
-    });
-
-    const populatedOrder = {
-      ...order,
-      _id: order.id,
-      customer: {
-        _id: customer?.id || '',
-        name: customer?.name || '',
-        phone: customer?.phone || '',
-        companyName: customer?.companyName || '',
-      },
-      items: populatedItems,
+      })),
+      totalItems: updatedOrder?.totalItems,
+      status: updatedOrder?.status,
+      message: updatedOrder?.message,
+      canEdit: updatedOrder?.canEdit,
+      editDeadline: updatedOrder?.editDeadline,
+      history: updatedOrder?.history,
+      createdAt: updatedOrder?.createdAt,
+      updatedAt: updatedOrder?.updatedAt,
     };
 
     console.log('[Order Update] Order updated successfully');
@@ -278,10 +279,12 @@ export async function DELETE(
       );
     }
 
-    const db = readDB();
-    const orderIndex = db.orders.findIndex(o => o.id === params.id);
+    await connectDB();
 
-    if (orderIndex === -1) {
+    // Fetch order from MongoDB
+    const order = await Order.findById(params.id);
+
+    if (!order) {
       console.log('[Order Delete] Order not found:', params.id);
       return NextResponse.json(
         { error: 'Order not found' },
@@ -289,10 +292,8 @@ export async function DELETE(
       );
     }
 
-    const order = db.orders[orderIndex];
-
     // Check permissions
-    const isOwner = order.customer === authUser.userId;
+    const isOwner = order.customer.toString() === authUser.userId;
     
     // Admin can delete any order, customer can only delete their own 'new' orders
     if (!authUser.isAdmin) {
@@ -313,9 +314,8 @@ export async function DELETE(
       }
     }
 
-    // Remove order
-    db.orders.splice(orderIndex, 1);
-    writeDB(db);
+    // Delete order
+    await Order.findByIdAndDelete(params.id);
 
     console.log('[Order Delete] Order deleted successfully');
     return NextResponse.json({ success: true });
