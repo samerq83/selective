@@ -2,8 +2,11 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 
-// Load environment variables from .env.local
-const envPath = path.join(process.cwd(), '.env.local');
+// Load environment variables from .env.local or .env
+let envPath = path.join(process.cwd(), '.env.local');
+if (!fs.existsSync(envPath)) {
+  envPath = path.join(process.cwd(), '.env');
+}
 const envContent = fs.readFileSync(envPath, 'utf-8');
 const envVars = {};
 envContent.split('\n').forEach(line => {
