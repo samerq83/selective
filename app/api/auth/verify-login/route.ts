@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    response.cookies.set('auth-verified', 'true', {
+    response.cookies.set('auth-verified', formattedPhone, {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

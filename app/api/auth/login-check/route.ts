@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { formatPhone } from '@/lib/utils';
-import { sendVerificationEmail } from '@/lib/email';
 import { generateToken } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
@@ -13,22 +11,22 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
     
-    const { phone } = await request.json();
-    console.log('[Login Check] Login check for:', phone);
+    const { phone, code } = await request.json();
+    console.log('[Verify Login] Verification attempt:', { phone, code });
 
-    if (!phone) {
+    if (!phone || !code) {
       return NextResponse.json(
-        { error: 'Phone number is required' },
+        { error: 'Phone and code are required' },
         { status: 400 }
       );
     }
 
     const formattedPhone = formatPhone(phone);
-
     const user = await User.findOne({ phone: formattedPhone });
+
     if (!user) {
       return NextResponse.json(
-        { error: 'Phone number not registered. Please sign up first.' },
+        { error: 'Phone number not registered' },
         { status: 404 }
       );
     }
@@ -40,99 +38,69 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if email exists for user
-    if (!user.email) {
-      // For users without email in the system, update with provided email or create a placeholder
-      console.log('[Login Check] User has no email associated');
-      return NextResponse.json(
-        { error: 'No email is associated with this account. Please contact support.' },
-        { status: 500 }
-      );
-    }
-
-    const cookieStore = await cookies();
-    const authVerifiedCookie = cookieStore.get('auth-verified');
-
-    if (authVerifiedCookie?.value === 'true') {
-      console.log('[Login Check] Device already verified, issuing session token');
-
-      const token = generateToken({
-        userId: (user._id as any).toString(),
-        phone: user.phone,
-        isAdmin: user.isAdmin,
-      });
-
-      const response = NextResponse.json({
-        success: true,
-        needsVerification: false,
-        user: {
-          id: (user._id as any).toString(),
-          phone: user.phone,
-          name: user.name || '',
-          email: user.email || '',
-          isAdmin: user.isAdmin,
-        },
-      });
-
-      response.cookies.set('auth-token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 90 * 24 * 60 * 60,
-        path: '/',
-      });
-
-      response.cookies.set('auth-verified', 'true', {
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 90 * 24 * 60 * 60,
-        path: '/',
-      });
-
-      return response;
-    }
-
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
-
-    // Save verification code to MongoDB
-    await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
-    
-    await VerificationCode.create({
+    const verification = await VerificationCode.findOne({
       phone: formattedPhone,
-      email: user.email?.toLowerCase(),
-      companyName: user.companyName,
-      name: user.name,
-      address: user.address,
       code,
-      expiresAt,
       type: 'login',
     });
 
-    try {
-      await sendVerificationEmail(user.email, code, user.name || user.email);
-      console.log('[Login Check] Verification email sent to:', user.email);
-    } catch (emailError) {
-      console.error('[Login Check] Error sending email:', emailError);
+    if (!verification) {
       return NextResponse.json(
-        { error: 'Failed to send verification email' },
-        { status: 500 }
+        { error: 'Invalid verification code' },
+        { status: 400 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      needsVerification: true,
-      message: 'Verification code sent to your email',
-      email: user.email,
+    if (new Date() > verification.expiresAt) {
+      await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
+      return NextResponse.json(
+        { error: 'Verification code expired' },
+        { status: 400 }
+      );
+    }
+
+    await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
+
+    const token = generateToken({
+      userId: (user._id as any).toString(),
+      phone: user.phone,
+      isAdmin: user.isAdmin,
     });
+
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: (user._id as any).toString(),
+        phone: user.phone,
+        name: user.name || '',
+        email: user.email || '',
+        isAdmin: user.isAdmin,
+      },
+    });
+
+    response.cookies.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 90 * 24 * 60 * 60,
+      path: '/',
+    });
+
+    response.cookies.set('auth-verified', formattedPhone, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 90 * 24 * 60 * 60,
+      path: '/',
+    });
+
+    console.log('[Verify Login] Login verified for:', user._id);
+
+    return response;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error('[Login Check] Error:', errorMessage);
-    console.error('[Login Check] Full error:', error);
+    console.error('[Verify Login] Error:', error);
     return NextResponse.json(
-      { error: `Internal server error: ${errorMessage}` },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

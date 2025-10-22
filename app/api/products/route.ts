@@ -1,13 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProducts, createProduct } from '@/lib/simple-db';
 import { requireAdmin } from '@/lib/auth';
+import connectDB from '@/lib/mongodb';
+import Product from '@/models/Product';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const products = getProducts();
-    return NextResponse.json(products);
+    await connectDB();
+    const products = await Product.find({}).sort({ order: 1, createdAt: -1 });
+    
+    // Format response to match expected structure
+    const formattedProducts = products.map(p => ({
+      _id: p._id,
+      id: p._id, // For backward compatibility
+      name: p.name,
+      nameEn: p.name.en,
+      nameAr: p.name.ar,
+      slug: p.slug,
+      image: p.image,
+      isAvailable: p.isAvailable,
+      order: p.order,
+    }));
+    
+    return NextResponse.json(formattedProducts);
   } catch (error) {
     console.error('Get products error:', error);
     return NextResponse.json(
@@ -20,6 +36,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     await requireAdmin();
+    await connectDB();
 
     const body = await request.json();
     const { nameEn, nameAr, image, isAvailable } = body;
@@ -27,7 +44,8 @@ export async function POST(request: NextRequest) {
     // Generate slug from English name
     const slug = nameEn.toLowerCase().replace(/\s+/g, '-');
 
-    const product = createProduct({
+    // Create product in MongoDB
+    const product = await Product.create({
       name: {
         en: nameEn,
         ar: nameAr,
@@ -38,7 +56,19 @@ export async function POST(request: NextRequest) {
       order: 0,
     });
 
-    return NextResponse.json({ product: { ...product, _id: product.id } }, { status: 201 });
+    const formattedProduct = {
+      _id: product._id,
+      id: product._id,
+      name: product.name,
+      nameEn: product.name.en,
+      nameAr: product.name.ar,
+      slug: product.slug,
+      image: product.image,
+      isAvailable: product.isAvailable,
+      order: product.order,
+    };
+
+    return NextResponse.json({ product: formattedProduct }, { status: 201 });
   } catch (error: any) {
     console.error('Create product error:', error);
     

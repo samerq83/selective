@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-10-22T08:07:35.051Z",
+  "results": {
+    "data-migration.test.js": {
+      "status": "failed",
+      "error": "Command failed: npm test -- --testPathPattern=data-migration.test.js\ntestPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n",
+      "stderr": "testPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n"
+    },
+    "database-operations.test.js": {
+      "status": "failed",
+      "error": "Command failed: npm test -- --testPathPattern=database-operations.test.js\ntestPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n",
+      "stderr": "testPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n"
+    },
+    "migration-integration.test.js": {
+      "status": "failed",
+      "error": "Command failed: npm test -- --testPathPattern=migration-integration.test.js\ntestPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n",
+      "stderr": "testPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n"
+    }
+  },
+  "summary": {
+    "totalTests": 3,
+    "passedTests": 0,
+    "failedTests": 3,
+    "duration": 2992
+  },
+  "details": []
+}

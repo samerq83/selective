@@ -3,15 +3,21 @@
   functions = "netlify/functions"
   publish = ".next"
 
-# Allow Next.js to handle API routes directly
-# No redirect needed - Next.js handles /api/* internally
+# Cache headers for static assets
+[[headers]]
+  for = "/uploads/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
-# SPA routing for client-side navigation
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [context.production.environment]
   NODE_ENV = "production"

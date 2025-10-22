@@ -1,10 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  findProductsByIds, 
-  getSettings, 
-  createOrder, 
-  createNotification
-} from '@/lib/simple-db';
 import { requireAuth } from '@/lib/auth';
 import { getEditDeadline } from '@/lib/utils';
 import connectDB from '@/lib/mongodb';
@@ -122,7 +116,7 @@ export async function POST(request: NextRequest) {
 
     // Validate products and check availability
     const productIds = items.map((item: any) => item.product);
-    const products = findProductsByIds(productIds);
+    const products = await Product.find({ _id: { $in: productIds } }) as any[];
 
     if (products.length !== items.length) {
       return NextResponse.json(
@@ -140,23 +134,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prepare order items with product names
+    // Prepare order items with product references
     const orderItems = items.map((item: any) => {
-      const product = products.find(p => p.id === item.product);
+      const product = products.find((p: any) => p._id.toString() === item.product);
       return {
-        product: item.product,
-        productName: product!.name,
+        product: product._id,
         quantity: item.quantity,
       };
     });
 
-    // Get settings for edit time limit
-    const settings = getSettings();
-    const editTimeLimit = settings?.orderSettings?.editTimeLimit || 2;
+    // Generate order number
+    const orderNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
 
-    // Create order
-    const order = createOrder({
-      customer: String(user._id),
+    // Create order in MongoDB
+    const order = await Order.create({
+      orderNumber,
+      customer: user._id,
       customerName: user.name || user.phone,
       customerPhone: user.phone,
       items: orderItems,
@@ -164,33 +157,52 @@ export async function POST(request: NextRequest) {
       status: 'new',
       message,
       canEdit: true,
-      editDeadline: getEditDeadline(editTimeLimit),
+      editDeadline: getEditDeadline(2), // Default 2 hours
       history: [
         {
           action: 'created',
-          by: String(user._id),
+          by: user._id,
           byName: user.name || user.phone,
           timestamp: new Date(),
         },
       ],
     });
 
-    // Create notification for customer
-    createNotification({
-      user: String(user._id),
-      type: 'order_created',
-      title: {
-        en: 'Order Created',
-        ar: 'تم إنشاء الطلب',
-      },
-      message: {
-        en: `Your order #${order.orderNumber} has been created successfully`,
-        ar: `تم إنشاء طلبك رقم #${order.orderNumber} بنجاح`,
-      },
-      relatedOrder: order._id,
-    });
+    // Populate for response
+    const populatedOrder = await Order.findById(order._id)
+      .populate('customer')
+      .populate('items.product')
+      .lean() as any;
 
-    return NextResponse.json({ order }, { status: 201 });
+    // Format response
+    const formattedOrder = {
+      _id: populatedOrder._id,
+      orderNumber: populatedOrder.orderNumber,
+      customer: {
+        _id: populatedOrder.customer._id,
+        name: populatedOrder.customer.name,
+        phone: populatedOrder.customer.phone,
+      },
+      items: populatedOrder.items.map((item: any) => ({
+        product: {
+          _id: item.product._id,
+          nameEn: item.product.name?.en,
+          nameAr: item.product.name?.ar,
+          image: item.product.image,
+        },
+        quantity: item.quantity,
+      })),
+      totalItems: populatedOrder.totalItems,
+      status: populatedOrder.status,
+      message: populatedOrder.message,
+      canEdit: populatedOrder.canEdit,
+      editDeadline: populatedOrder.editDeadline,
+      history: populatedOrder.history,
+      createdAt: populatedOrder.createdAt,
+      updatedAt: populatedOrder.updatedAt,
+    };
+
+    return NextResponse.json({ order: formattedOrder }, { status: 201 });
   } catch (error: any) {
     console.error('Create order error:', error);
     

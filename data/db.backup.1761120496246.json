@@ -1,0 +1,2254 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "phone": "1234567890",
+      "name": "Admin",
+      "email": "admin@selectivetrading.com",
+      "address": "Admin Address",
+      "isAdmin": true,
+      "isActive": true,
+      "lastLogin": "2025-10-11T20:10:02.361Z"
+    },
+    {
+      "phone": "90902569",
+      "name": "Khadija ",
+      "email": "med.tahboub@gmail.com",
+      "address": "Salwa",
+      "isAdmin": false,
+      "isActive": true,
+      "id": "3",
+      "companyName": "20 gram cafe "
+    },
+    {
+      "phone": "90901569",
+      "companyName": "starbucks",
+      "name": "khaled",
+      "email": "samer.q8+2@gmail.com",
+      "address": "sharq kuwait ",
+      "isAdmin": false,
+      "isActive": true,
+      "id": "4"
+    },
+    {
+      "phone": "12345678",
+      "companyName": "VOL",
+      "name": "JOHN",
+      "email": "samer.q8+3@gmail.com",
+      "address": "mishref",
+      "isActive": true,
+      "isAdmin": false,
+      "id": "5",
+      "lastLogin": "2025-10-15T20:50:47.396Z"
+    },
+    {
+      "phone": "123456788",
+      "companyName": "secound cup ",
+      "name": "ahmed ",
+      "email": "samer.q8+5@gmail.com",
+      "address": "salmiya",
+      "isAdmin": false,
+      "isActive": true,
+      "id": "6"
+    },
+    {
+      "phone": "90908041",
+      "companyName": "CLAY",
+      "name": "ALAA",
+      "email": "samer.q8+1@gmail.com",
+      "address": "salwa",
+      "isAdmin": false,
+      "isActive": true,
+      "id": "7"
+    },
+    {
+      "id": "7",
+      "phone": "97654369",
+      "name": "samer",
+      "email": "samer.q8@gmail.com",
+      "address": "",
+      "companyName": "",
+      "isAdmin": true,
+      "isActive": true
+    }
+  ],
+  "products": [
+    {
+      "id": "2",
+      "name": {
+        "en": "Coconut Milk",
+        "ar": "حليب جوز الهند"
+      },
+      "slug": "coconut",
+      "image": "/uploads/1760546599784-coconut.jpg",
+      "isAvailable": true,
+      "order": 2
+    },
+    {
+      "id": "3",
+      "name": {
+        "en": "Soy Milk",
+        "ar": "حليب الصويا"
+      },
+      "slug": "soy",
+      "image": "/uploads/1760546574837-soy.jpg",
+      "isAvailable": true,
+      "order": 3
+    },
+    {
+      "id": "4",
+      "name": {
+        "en": "Oat Milk",
+        "ar": "حليب الشوفان"
+      },
+      "slug": "oat",
+      "image": "/uploads/1760544271343-oat.jpg",
+      "isAvailable": true,
+      "order": 4
+    },
+    {
+      "id": "5",
+      "name": {
+        "en": "Lactose Free Milk",
+        "ar": "حليب خالي من اللاكتوز"
+      },
+      "slug": "lactose-free",
+      "image": "/uploads/1760546610480-lactose.jpg",
+      "isAvailable": true,
+      "order": 5
+    },
+    {
+      "id": "6",
+      "name": {
+        "en": "Almond Milk",
+        "ar": "حليب اللوز"
+      },
+      "slug": "almond",
+      "image": "/uploads/1760473444814-almond.jpg",
+      "isAvailable": true,
+      "order": 6
+    },
+    {
+      "name": {
+        "en": "macarons",
+        "ar": "ماكرون"
+      },
+      "slug": "macarons",
+      "image": "/uploads/1760564304666-Untitled-11.jpg",
+      "isAvailable": true,
+      "order": 0,
+      "id": "8"
+    },
+    {
+      "name": {
+        "en": "chocolate profiteroles",
+        "ar": "بروفيترول بالشوكلاته "
+      },
+      "slug": "chocolate-profiteroles",
+      "image": "/uploads/1760564399414-Chocolate-Profiteroles.jpg",
+      "isAvailable": true,
+      "order": 0,
+      "id": "9"
+    }
+  ],
+  "orders": [
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "1",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 3
+        }
+      ],
+      "totalItems": 6,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T01:27:03.602Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-14T23:27:03.603Z"
+        },
+        {
+          "action": "updated",
+          "by": "12",
+          "byName": "شسيشي",
+          "timestamp": "2025-10-14T23:36:45.991Z"
+        }
+      ],
+      "id": "7",
+      "orderNumber": "699213",
+      "createdAt": "2025-10-14T23:27:03.603Z",
+      "updatedAt": "2025-10-14T23:36:45.991Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "1",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 4
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 4
+        }
+      ],
+      "totalItems": 8,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T01:27:20.814Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-14T23:27:20.814Z"
+        },
+        {
+          "action": "updated",
+          "by": "12",
+          "byName": "شسيشي",
+          "timestamp": "2025-10-14T23:36:25.196Z"
+        }
+      ],
+      "id": "8",
+      "orderNumber": "399619",
+      "createdAt": "2025-10-14T23:27:20.814Z",
+      "updatedAt": "2025-10-14T23:36:25.196Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "1",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 2
+        }
+      ],
+      "totalItems": 4,
+      "status": "received",
+      "message": "",
+      "canEdit": false,
+      "editDeadline": "2025-10-15T01:44:28.655Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-14T23:44:28.655Z"
+        },
+        {
+          "action": "updated",
+          "by": "12",
+          "byName": "شسيشي",
+          "timestamp": "2025-10-15T08:20:41.509Z"
+        }
+      ],
+      "id": "10",
+      "orderNumber": "937945",
+      "createdAt": "2025-10-14T23:44:28.655Z",
+      "updatedAt": "2025-10-15T08:20:41.509Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "1",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 2
+        }
+      ],
+      "totalItems": 4,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T18:34:23.253Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-15T16:34:23.254Z"
+        }
+      ],
+      "id": "11",
+      "orderNumber": "937946",
+      "createdAt": "2025-10-15T16:34:23.255Z",
+      "updatedAt": "2025-10-15T16:34:23.255Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "1",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 2
+        }
+      ],
+      "totalItems": 4,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T18:35:16.256Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-15T16:35:16.256Z"
+        }
+      ],
+      "id": "12",
+      "orderNumber": "937947",
+      "createdAt": "2025-10-15T16:35:16.258Z",
+      "updatedAt": "2025-10-15T16:35:16.258Z"
+    },
+    {
+      "customer": "5",
+      "customerName": "khaled",
+      "customerPhone": "90901569",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 3
+        }
+      ],
+      "totalItems": 15,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T19:38:16.596Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "5",
+          "byName": "khaled",
+          "timestamp": "2025-10-15T17:38:16.596Z"
+        }
+      ],
+      "id": "6",
+      "orderNumber": "937948",
+      "createdAt": "2025-10-15T17:38:16.597Z",
+      "updatedAt": "2025-10-15T17:38:16.597Z"
+    },
+    {
+      "customer": "5",
+      "customerName": "khaled",
+      "customerPhone": "90901569",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 3
+        }
+      ],
+      "totalItems": 15,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T19:41:48.782Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "5",
+          "byName": "khaled",
+          "timestamp": "2025-10-15T17:41:48.782Z"
+        }
+      ],
+      "id": "7",
+      "orderNumber": "937949",
+      "createdAt": "2025-10-15T17:41:48.783Z",
+      "updatedAt": "2025-10-15T17:41:48.783Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 2,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T22:07:45.341Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-15T20:07:45.341Z"
+        }
+      ],
+      "id": "8",
+      "orderNumber": "937950",
+      "createdAt": "2025-10-15T20:07:45.342Z",
+      "updatedAt": "2025-10-15T20:07:45.342Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 2,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T22:09:03.443Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-15T20:09:03.443Z"
+        }
+      ],
+      "id": "9",
+      "orderNumber": "937951",
+      "createdAt": "2025-10-15T20:09:03.443Z",
+      "updatedAt": "2025-10-15T20:09:03.443Z"
+    },
+    {
+      "customer": "6",
+      "customerName": "JOHN",
+      "customerPhone": "12345678",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 5
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 5
+        }
+      ],
+      "totalItems": 19,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T22:51:06.215Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "6",
+          "byName": "JOHN",
+          "timestamp": "2025-10-15T20:51:06.215Z"
+        }
+      ],
+      "id": "10",
+      "orderNumber": "937952",
+      "createdAt": "2025-10-15T20:51:06.216Z",
+      "updatedAt": "2025-10-15T20:51:06.216Z"
+    },
+    {
+      "customer": "5",
+      "customerName": "khaled",
+      "customerPhone": "90901569",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 3
+        }
+      ],
+      "totalItems": 15,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T22:53:38.531Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "5",
+          "byName": "khaled",
+          "timestamp": "2025-10-15T20:53:38.531Z"
+        }
+      ],
+      "id": "11",
+      "orderNumber": "937953",
+      "createdAt": "2025-10-15T20:53:38.532Z",
+      "updatedAt": "2025-10-15T20:53:38.532Z"
+    },
+    {
+      "customer": "7",
+      "customerName": "ahmed ",
+      "customerPhone": "123456788",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 7,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T22:56:53.650Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "7",
+          "byName": "ahmed ",
+          "timestamp": "2025-10-15T20:56:53.650Z"
+        }
+      ],
+      "id": "12",
+      "orderNumber": "937954",
+      "createdAt": "2025-10-15T20:56:53.651Z",
+      "updatedAt": "2025-10-15T20:56:53.651Z"
+    },
+    {
+      "customer": "7",
+      "customerName": "ahmed ",
+      "customerPhone": "123456788",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 5,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T23:03:52.851Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "7",
+          "byName": "ahmed ",
+          "timestamp": "2025-10-15T21:03:52.851Z"
+        }
+      ],
+      "id": "13",
+      "orderNumber": "937955",
+      "createdAt": "2025-10-15T21:03:52.852Z",
+      "updatedAt": "2025-10-15T21:03:52.852Z"
+    },
+    {
+      "customer": "5",
+      "customerName": "khaled",
+      "customerPhone": "90901569",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 3
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 3
+        }
+      ],
+      "totalItems": 11,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T23:14:51.667Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "5",
+          "byName": "khaled",
+          "timestamp": "2025-10-15T21:14:51.667Z"
+        }
+      ],
+      "id": "14",
+      "orderNumber": "937956",
+      "createdAt": "2025-10-15T21:14:51.668Z",
+      "updatedAt": "2025-10-15T21:14:51.668Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 2,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-15T23:44:03.851Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-15T21:44:03.851Z"
+        }
+      ],
+      "id": "15",
+      "orderNumber": "937957",
+      "createdAt": "2025-10-15T21:44:03.852Z",
+      "updatedAt": "2025-10-15T21:44:03.852Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 2,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-18T00:07:53.696Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-17T22:07:53.696Z"
+        }
+      ],
+      "id": "16",
+      "orderNumber": "937958",
+      "createdAt": "2025-10-17T22:07:53.697Z",
+      "updatedAt": "2025-10-17T22:07:53.697Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "8",
+          "productName": {
+            "en": "macarons",
+            "ar": "ماكرون"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "9",
+          "productName": {
+            "en": "chocolate profiteroles",
+            "ar": "بروفيترول بالشوكلاته "
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 2,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-18T00:13:41.223Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-17T22:13:41.223Z"
+        }
+      ],
+      "id": "17",
+      "orderNumber": "937959",
+      "createdAt": "2025-10-17T22:13:41.224Z",
+      "updatedAt": "2025-10-17T22:13:41.224Z"
+    },
+    {
+      "customer": "4",
+      "customerName": "alaa",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "8",
+          "productName": {
+            "en": "macarons",
+            "ar": "ماكرون"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "9",
+          "productName": {
+            "en": "chocolate profiteroles",
+            "ar": "بروفيترول بالشوكلاته "
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 4,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-18T00:22:08.128Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "4",
+          "byName": "alaa",
+          "timestamp": "2025-10-17T22:22:08.128Z"
+        }
+      ],
+      "id": "18",
+      "orderNumber": "937960",
+      "createdAt": "2025-10-17T22:22:08.129Z",
+      "updatedAt": "2025-10-17T22:22:08.129Z"
+    },
+    {
+      "customer": "7",
+      "customerName": "ALAA",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "8",
+          "productName": {
+            "en": "macarons",
+            "ar": "ماكرون"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "9",
+          "productName": {
+            "en": "chocolate profiteroles",
+            "ar": "بروفيترول بالشوكلاته "
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 3,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-19T01:11:44.960Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "7",
+          "byName": "ALAA",
+          "timestamp": "2025-10-18T23:11:44.960Z"
+        }
+      ],
+      "id": "19",
+      "orderNumber": "937961",
+      "createdAt": "2025-10-18T23:11:44.961Z",
+      "updatedAt": "2025-10-18T23:11:44.961Z"
+    },
+    {
+      "customer": "7",
+      "customerName": "ALAA",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "8",
+          "productName": {
+            "en": "macarons",
+            "ar": "ماكرون"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "9",
+          "productName": {
+            "en": "chocolate profiteroles",
+            "ar": "بروفيترول بالشوكلاته "
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 6,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-20T22:36:23.250Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "7",
+          "byName": "ALAA",
+          "timestamp": "2025-10-20T20:36:23.250Z"
+        }
+      ],
+      "id": "20",
+      "orderNumber": "937962",
+      "createdAt": "2025-10-20T20:36:23.251Z",
+      "updatedAt": "2025-10-20T20:36:23.251Z"
+    },
+    {
+      "customer": "7",
+      "customerName": "ALAA",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "6",
+          "productName": {
+            "en": "Almond Milk",
+            "ar": "حليب اللوز"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "8",
+          "productName": {
+            "en": "macarons",
+            "ar": "ماكرون"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "9",
+          "productName": {
+            "en": "chocolate profiteroles",
+            "ar": "بروفيترول بالشوكلاته "
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 6,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-20T22:36:35.718Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "7",
+          "byName": "ALAA",
+          "timestamp": "2025-10-20T20:36:35.718Z"
+        }
+      ],
+      "id": "21",
+      "orderNumber": "937963",
+      "createdAt": "2025-10-20T20:36:35.718Z",
+      "updatedAt": "2025-10-20T20:36:35.718Z"
+    },
+    {
+      "customer": "68f765d6ebf47def249990c2",
+      "customerName": "ahmed",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "8",
+          "productName": {
+            "en": "macarons",
+            "ar": "ماكرون"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "9",
+          "productName": {
+            "en": "chocolate profiteroles",
+            "ar": "بروفيترول بالشوكلاته "
+          },
+          "quantity": 2
+        }
+      ],
+      "totalItems": 4,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-21T12:56:30.089Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "68f765d6ebf47def249990c2",
+          "byName": "ahmed",
+          "timestamp": "2025-10-21T10:56:30.089Z"
+        }
+      ],
+      "id": "22",
+      "orderNumber": "937964",
+      "createdAt": "2025-10-21T10:56:30.090Z",
+      "updatedAt": "2025-10-21T10:56:30.090Z"
+    },
+    {
+      "customer": "68f765d6ebf47def249990c2",
+      "customerName": "ahmed",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "8",
+          "productName": {
+            "en": "macarons",
+            "ar": "ماكرون"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "9",
+          "productName": {
+            "en": "chocolate profiteroles",
+            "ar": "بروفيترول بالشوكلاته "
+          },
+          "quantity": 2
+        }
+      ],
+      "totalItems": 4,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-21T12:56:38.889Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "68f765d6ebf47def249990c2",
+          "byName": "ahmed",
+          "timestamp": "2025-10-21T10:56:38.889Z"
+        }
+      ],
+      "id": "23",
+      "orderNumber": "937965",
+      "createdAt": "2025-10-21T10:56:38.890Z",
+      "updatedAt": "2025-10-21T10:56:38.890Z"
+    },
+    {
+      "customer": "68f76a6c0252ae5413771482",
+      "customerName": "khaled",
+      "customerPhone": "90901569",
+      "items": [
+        {
+          "product": "2",
+          "productName": {
+            "en": "Coconut Milk",
+            "ar": "حليب جوز الهند"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 3,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-21T13:13:48.976Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "68f76a6c0252ae5413771482",
+          "byName": "khaled",
+          "timestamp": "2025-10-21T11:13:48.976Z"
+        }
+      ],
+      "id": "24",
+      "orderNumber": "937966",
+      "createdAt": "2025-10-21T11:13:48.976Z",
+      "updatedAt": "2025-10-21T11:13:48.976Z"
+    },
+    {
+      "customer": "68f765d6ebf47def249990c2",
+      "customerName": "ahmed",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 4,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-21T13:35:35.481Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "68f765d6ebf47def249990c2",
+          "byName": "ahmed",
+          "timestamp": "2025-10-21T11:35:35.483Z"
+        }
+      ],
+      "id": "25",
+      "orderNumber": "937967",
+      "createdAt": "2025-10-21T11:35:35.484Z",
+      "updatedAt": "2025-10-21T11:35:35.484Z"
+    },
+    {
+      "customer": "68f765d6ebf47def249990c2",
+      "customerName": "ahmed",
+      "customerPhone": "90908041",
+      "items": [
+        {
+          "product": "3",
+          "productName": {
+            "en": "Soy Milk",
+            "ar": "حليب الصويا"
+          },
+          "quantity": 2
+        },
+        {
+          "product": "4",
+          "productName": {
+            "en": "Oat Milk",
+            "ar": "حليب الشوفان"
+          },
+          "quantity": 1
+        },
+        {
+          "product": "5",
+          "productName": {
+            "en": "Lactose Free Milk",
+            "ar": "حليب خالي من اللاكتوز"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalItems": 4,
+      "status": "new",
+      "message": "",
+      "canEdit": true,
+      "editDeadline": "2025-10-21T13:36:11.100Z",
+      "history": [
+        {
+          "action": "created",
+          "by": "68f765d6ebf47def249990c2",
+          "byName": "ahmed",
+          "timestamp": "2025-10-21T11:36:11.100Z"
+        }
+      ],
+      "id": "26",
+      "orderNumber": "937968",
+      "createdAt": "2025-10-21T11:36:11.102Z",
+      "updatedAt": "2025-10-21T11:36:11.102Z"
+    }
+  ],
+  "notifications": [
+    {
+      "user": "13",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #856427 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #856427 بنجاح"
+      },
+      "relatedOrder": "1",
+      "id": "1",
+      "isRead": false,
+      "createdAt": "2025-10-14T20:22:00.209Z"
+    },
+    {
+      "user": "13",
+      "type": "order_updated",
+      "title": {
+        "en": "Order Updated",
+        "ar": "تم تحديث الطلب"
+      },
+      "message": {
+        "en": "Your order #856427 has been updated",
+        "ar": "تم تحديث طلبك رقم #856427"
+      },
+      "relatedOrder": "1",
+      "id": "2",
+      "isRead": false,
+      "createdAt": "2025-10-14T21:00:27.388Z"
+    },
+    {
+      "user": "13",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #241016 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #241016 بنجاح"
+      },
+      "relatedOrder": "2",
+      "id": "3",
+      "isRead": false,
+      "createdAt": "2025-10-14T21:02:33.098Z"
+    },
+    {
+      "user": "13",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #782360 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #782360 بنجاح"
+      },
+      "relatedOrder": "3",
+      "id": "4",
+      "isRead": false,
+      "createdAt": "2025-10-14T21:04:10.371Z"
+    },
+    {
+      "user": "13",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #743440 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #743440 بنجاح"
+      },
+      "relatedOrder": "4",
+      "id": "5",
+      "isRead": false,
+      "createdAt": "2025-10-14T21:43:25.745Z"
+    },
+    {
+      "user": "13",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937943 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937943 بنجاح"
+      },
+      "relatedOrder": "5",
+      "id": "6",
+      "isRead": false,
+      "createdAt": "2025-10-14T21:48:39.158Z"
+    },
+    {
+      "user": "13",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #188253 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #188253 بنجاح"
+      },
+      "relatedOrder": "6",
+      "id": "7",
+      "isRead": false,
+      "createdAt": "2025-10-14T22:57:44.149Z"
+    },
+    {
+      "user": "13",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #215380 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #215380 بنجاح"
+      },
+      "relatedOrder": "7",
+      "id": "8",
+      "isRead": false,
+      "createdAt": "2025-10-14T23:10:46.226Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #699213 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #699213 بنجاح"
+      },
+      "relatedOrder": "7",
+      "id": "9",
+      "isRead": false,
+      "createdAt": "2025-10-14T23:27:03.605Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #399619 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #399619 بنجاح"
+      },
+      "relatedOrder": "8",
+      "id": "10",
+      "isRead": false,
+      "createdAt": "2025-10-14T23:27:20.816Z"
+    },
+    {
+      "user": "4",
+      "type": "order_updated",
+      "title": {
+        "en": "Order Updated",
+        "ar": "تم تحديث الطلب"
+      },
+      "message": {
+        "en": "Your order #399619 has been updated",
+        "ar": "تم تحديث طلبك رقم #399619"
+      },
+      "relatedOrder": "8",
+      "id": "11",
+      "isRead": false,
+      "createdAt": "2025-10-14T23:36:25.200Z"
+    },
+    {
+      "user": "4",
+      "type": "order_updated",
+      "title": {
+        "en": "Order Updated",
+        "ar": "تم تحديث الطلب"
+      },
+      "message": {
+        "en": "Your order #699213 has been updated",
+        "ar": "تم تحديث طلبك رقم #699213"
+      },
+      "relatedOrder": "7",
+      "id": "12",
+      "isRead": false,
+      "createdAt": "2025-10-14T23:36:45.994Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937944 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937944 بنجاح"
+      },
+      "relatedOrder": "9",
+      "id": "13",
+      "isRead": false,
+      "createdAt": "2025-10-14T23:44:14.083Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937945 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937945 بنجاح"
+      },
+      "relatedOrder": "10",
+      "id": "14",
+      "isRead": false,
+      "createdAt": "2025-10-14T23:44:28.657Z"
+    },
+    {
+      "user": "4",
+      "type": "order_updated",
+      "title": {
+        "en": "Order Updated",
+        "ar": "تم تحديث الطلب"
+      },
+      "message": {
+        "en": "Your order #937945 has been updated",
+        "ar": "تم تحديث طلبك رقم #937945"
+      },
+      "relatedOrder": "10",
+      "id": "15",
+      "isRead": false,
+      "createdAt": "2025-10-15T08:20:41.511Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937946 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937946 بنجاح"
+      },
+      "relatedOrder": "11",
+      "id": "16",
+      "isRead": false,
+      "createdAt": "2025-10-15T16:34:23.257Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937947 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937947 بنجاح"
+      },
+      "relatedOrder": "12",
+      "id": "17",
+      "isRead": false,
+      "createdAt": "2025-10-15T16:35:16.261Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937948 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937948 بنجاح"
+      },
+      "relatedOrder": "13",
+      "id": "18",
+      "isRead": false,
+      "createdAt": "2025-10-15T16:37:09.921Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937949 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937949 بنجاح"
+      },
+      "relatedOrder": "14",
+      "id": "19",
+      "isRead": false,
+      "createdAt": "2025-10-15T16:40:18.762Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937950 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937950 بنجاح"
+      },
+      "relatedOrder": "15",
+      "id": "20",
+      "isRead": false,
+      "createdAt": "2025-10-15T16:40:46.102Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937951 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937951 بنجاح"
+      },
+      "relatedOrder": "16",
+      "id": "21",
+      "isRead": false,
+      "createdAt": "2025-10-15T16:50:48.895Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937952 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937952 بنجاح"
+      },
+      "relatedOrder": "17",
+      "id": "22",
+      "isRead": false,
+      "createdAt": "2025-10-15T16:51:08.067Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937953 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937953 بنجاح"
+      },
+      "relatedOrder": "18",
+      "id": "23",
+      "isRead": false,
+      "createdAt": "2025-10-15T16:55:16.499Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937954 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937954 بنجاح"
+      },
+      "relatedOrder": "19",
+      "id": "24",
+      "isRead": false,
+      "createdAt": "2025-10-15T17:00:58.990Z"
+    },
+    {
+      "user": "4",
+      "type": "order_updated",
+      "title": {
+        "en": "Order Updated",
+        "ar": "تم تحديث الطلب"
+      },
+      "message": {
+        "en": "Your order #937954 has been updated",
+        "ar": "تم تحديث طلبك رقم #937954"
+      },
+      "relatedOrder": "19",
+      "id": "25",
+      "isRead": false,
+      "createdAt": "2025-10-15T17:04:50.857Z"
+    },
+    {
+      "user": "5",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937955 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937955 بنجاح"
+      },
+      "relatedOrder": "20",
+      "id": "26",
+      "isRead": false,
+      "createdAt": "2025-10-15T17:29:02.042Z"
+    },
+    {
+      "user": "5",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937948 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937948 بنجاح"
+      },
+      "relatedOrder": "6",
+      "id": "27",
+      "isRead": false,
+      "createdAt": "2025-10-15T17:38:16.599Z"
+    },
+    {
+      "user": "5",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937949 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937949 بنجاح"
+      },
+      "relatedOrder": "7",
+      "id": "28",
+      "isRead": false,
+      "createdAt": "2025-10-15T17:41:48.785Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937950 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937950 بنجاح"
+      },
+      "relatedOrder": "8",
+      "id": "29",
+      "isRead": false,
+      "createdAt": "2025-10-15T20:07:45.345Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937951 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937951 بنجاح"
+      },
+      "relatedOrder": "9",
+      "id": "30",
+      "isRead": false,
+      "createdAt": "2025-10-15T20:09:03.445Z"
+    },
+    {
+      "user": "6",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937952 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937952 بنجاح"
+      },
+      "relatedOrder": "10",
+      "id": "31",
+      "isRead": false,
+      "createdAt": "2025-10-15T20:51:06.218Z"
+    },
+    {
+      "user": "5",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937953 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937953 بنجاح"
+      },
+      "relatedOrder": "11",
+      "id": "32",
+      "isRead": false,
+      "createdAt": "2025-10-15T20:53:38.534Z"
+    },
+    {
+      "user": "7",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937954 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937954 بنجاح"
+      },
+      "relatedOrder": "12",
+      "id": "33",
+      "isRead": false,
+      "createdAt": "2025-10-15T20:56:53.653Z"
+    },
+    {
+      "user": "7",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937955 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937955 بنجاح"
+      },
+      "relatedOrder": "13",
+      "id": "34",
+      "isRead": false,
+      "createdAt": "2025-10-15T21:03:52.856Z"
+    },
+    {
+      "user": "5",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937956 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937956 بنجاح"
+      },
+      "relatedOrder": "14",
+      "id": "35",
+      "isRead": false,
+      "createdAt": "2025-10-15T21:14:51.672Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937957 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937957 بنجاح"
+      },
+      "relatedOrder": "15",
+      "id": "36",
+      "isRead": false,
+      "createdAt": "2025-10-15T21:44:03.855Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937958 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937958 بنجاح"
+      },
+      "relatedOrder": "16",
+      "id": "37",
+      "isRead": false,
+      "createdAt": "2025-10-17T22:07:53.700Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937959 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937959 بنجاح"
+      },
+      "relatedOrder": "17",
+      "id": "38",
+      "isRead": false,
+      "createdAt": "2025-10-17T22:13:41.226Z"
+    },
+    {
+      "user": "4",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937960 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937960 بنجاح"
+      },
+      "relatedOrder": "18",
+      "id": "39",
+      "isRead": false,
+      "createdAt": "2025-10-17T22:22:08.132Z"
+    },
+    {
+      "user": "7",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937961 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937961 بنجاح"
+      },
+      "relatedOrder": "19",
+      "id": "40",
+      "isRead": false,
+      "createdAt": "2025-10-18T23:11:44.963Z"
+    },
+    {
+      "user": "7",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937962 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937962 بنجاح"
+      },
+      "relatedOrder": "20",
+      "id": "41",
+      "isRead": false,
+      "createdAt": "2025-10-20T20:36:23.254Z"
+    },
+    {
+      "user": "7",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937963 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937963 بنجاح"
+      },
+      "relatedOrder": "21",
+      "id": "42",
+      "isRead": false,
+      "createdAt": "2025-10-20T20:36:35.722Z"
+    },
+    {
+      "user": "68f765d6ebf47def249990c2",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937964 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937964 بنجاح"
+      },
+      "relatedOrder": "22",
+      "id": "43",
+      "isRead": false,
+      "createdAt": "2025-10-21T10:56:30.094Z"
+    },
+    {
+      "user": "68f765d6ebf47def249990c2",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937965 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937965 بنجاح"
+      },
+      "relatedOrder": "23",
+      "id": "44",
+      "isRead": false,
+      "createdAt": "2025-10-21T10:56:38.893Z"
+    },
+    {
+      "user": "68f76a6c0252ae5413771482",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937966 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937966 بنجاح"
+      },
+      "relatedOrder": "24",
+      "id": "45",
+      "isRead": false,
+      "createdAt": "2025-10-21T11:13:48.980Z"
+    },
+    {
+      "user": "68f765d6ebf47def249990c2",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937967 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937967 بنجاح"
+      },
+      "relatedOrder": "25",
+      "id": "46",
+      "isRead": false,
+      "createdAt": "2025-10-21T11:35:35.488Z"
+    },
+    {
+      "user": "68f765d6ebf47def249990c2",
+      "type": "order_created",
+      "title": {
+        "en": "Order Created",
+        "ar": "تم إنشاء الطلب"
+      },
+      "message": {
+        "en": "Your order #937968 has been created successfully",
+        "ar": "تم إنشاء طلبك رقم #937968 بنجاح"
+      },
+      "relatedOrder": "26",
+      "id": "47",
+      "isRead": false,
+      "createdAt": "2025-10-21T11:36:11.105Z"
+    }
+  ],
+  "settings": {
+    "orderSettings": {
+      "editTimeLimit": 2
+    }
+  },
+  "verificationCodes": []
+}
