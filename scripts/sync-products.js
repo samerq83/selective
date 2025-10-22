@@ -1,3 +1,7 @@
+// NOTE: هذا السكريبت لم يعد مستخدماً في الإنتاج
+// البيانات الآن تُحفظ مباشرة في MongoDB Atlas
+// يُستخدم فقط للتطوير المحلي عند الحاجة
+
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');

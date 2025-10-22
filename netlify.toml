@@ -1,5 +1,5 @@
 [build]
-  command = "node scripts/sync-products.js && npm run build"
+  command = "npm run build"
   functions = "netlify/functions"
   publish = ".next"
 
