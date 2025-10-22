@@ -48,7 +48,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login-check', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
@@ -57,20 +57,13 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        if (data.needsVerification) {
-          setNeedsVerification(true);
-          setVerificationEmail(data.email || '');
-          setStep('verify');
-          startResendTimer();
-        } else if (data.user) {
-          if (data.user.isAdmin) {
-            window.location.href = '/admin';
-          } else {
-            window.location.href = '/dashboard';
-          }
-        } else {
-          window.location.href = '/dashboard';
+        // Show verification code for development
+        if (data.code && process.env.NODE_ENV === 'development') {
+          console.log('Verification code:', data.code);
         }
+        
+        setStep('verify');
+        startResendTimer();
       } else {
         setError(data.error || t('error', language));
       }
@@ -87,7 +80,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/verify-login', {
+      const res = await fetch('/api/auth/login-check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, code }),
@@ -118,13 +111,19 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/resend-login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
       });
 
       if (res.ok) {
+        const data = await res.json();
+        // Show verification code for development
+        if (data.code && process.env.NODE_ENV === 'development') {
+          console.log('Verification code:', data.code);
+        }
+        
         setCanResend(false);
         startResendTimer();
       } else {

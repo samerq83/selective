@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateToken } from '@/lib/auth';
 import { formatPhone } from '@/lib/utils';
-import { findUserByPhone, createUser, updateUser } from '@/lib/simple-db';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
+import VerificationCode from '@/models/VerificationCode';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     const { phone } = await request.json();
     console.log('[Login] Login attempt with phone:', phone);
 
@@ -21,11 +25,11 @@ export async function POST(request: NextRequest) {
     console.log('[Login] Formatted phone:', formattedPhone);
 
     // Find or create user
-    let user = findUserByPhone(formattedPhone);
-    console.log('[Login] User found:', user ? `ID: ${user.id}, isAdmin: ${user.isAdmin}` : 'Not found, creating new user');
+    let user = await User.findOne({ phone: formattedPhone });
+    console.log('[Login] User found:', user ? `ID: ${user._id}, isAdmin: ${user.isAdmin}` : 'Not found, creating new user');
 
     if (!user) {
-      user = createUser({
+      user = await User.create({
         phone: formattedPhone,
         name: 'User',
         companyName: '',
@@ -33,43 +37,51 @@ export async function POST(request: NextRequest) {
         address: '',
         isAdmin: false,
         isActive: true,
+        lastLogin: new Date(),
       });
-      console.log('[Login] New user created:', user.id);
+      console.log('[Login] New user created:', user._id);
+    } else {
+      // Update last login
+      user.lastLogin = new Date();
+      await user.save();
     }
 
-    // Update last login
-    updateUser(user.id, { lastLogin: new Date() });
+    if (!user.isActive) {
+      return NextResponse.json(
+        { error: 'Account is inactive. Please contact support.' },
+        { status: 403 }
+      );
+    }
 
-    // Generate token
-    const token = generateToken({
-      userId: user.id,
-      phone: user.phone,
-      isAdmin: user.isAdmin,
+    // Generate and save verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10); // 10 minutes
+
+    // Remove any existing login codes for this phone
+    await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
+
+    // Save new verification code
+    await VerificationCode.create({
+      phone: formattedPhone,
+      code: verificationCode,
+      type: 'login',
+      expiresAt,
     });
-    console.log('[Login] Token generated for user:', user.id);
 
-    // Set cookie
-    const response = NextResponse.json({
+    console.log('[Login] Verification code generated:', verificationCode);
+
+    // In development, return the code for testing
+    const responseData: any = {
       success: true,
-      user: {
-        id: user.id,
-        phone: user.phone,
-        name: user.name,
-        isAdmin: user.isAdmin,
-      },
-    });
+      message: 'Verification code sent',
+    };
 
-    response.cookies.set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60, // 30 days,
-      path: '/',
-    });
+    if (process.env.NODE_ENV === 'development') {
+      responseData.code = verificationCode;
+    }
 
-    console.log('[Login] Cookie set, login successful');
-
-    return response;
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
