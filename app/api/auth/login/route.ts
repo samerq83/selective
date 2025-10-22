@@ -5,6 +5,7 @@ import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import VerificationCode from '@/models/VerificationCode';
 import { sendVerificationEmail } from '@/lib/email';
+import { isDeviceVerified } from '@/lib/auth-cookies';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,10 @@ export async function POST(request: NextRequest) {
 
     const formattedPhone = formatPhone(phone);
     console.log('[Login] Formatted phone:', formattedPhone);
+
+    // Check if device is already verified
+    const deviceIsVerified = isDeviceVerified(formattedPhone, request);
+    console.log('[Login] Device verification status:', deviceIsVerified);
 
     // Find or create user (keep original behavior)
     let user = await User.findOne({ phone: formattedPhone });
@@ -52,6 +57,34 @@ export async function POST(request: NextRequest) {
         { error: 'Account is inactive. Please contact support.' },
         { status: 403 }
       );
+    }
+
+    // If device is already verified, allow direct login
+    if (deviceIsVerified) {
+      console.log('[Login] Device is verified, allowing direct login');
+      const token = generateToken(user._id.toString(), user.isAdmin);
+      
+      const response = NextResponse.json({
+        success: true,
+        skipVerification: true,
+        user: {
+          id: user._id,
+          phone: user.phone,
+          name: user.name,
+          isAdmin: user.isAdmin
+        }
+      });
+
+      // Set auth token cookie
+      response.cookies.set('auth-token', token, {
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      });
+
+      return response;
     }
 
     // Generate 4-digit verification code (keep original format)

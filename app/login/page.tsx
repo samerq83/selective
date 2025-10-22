@@ -57,6 +57,17 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
+        // Check if verification was skipped (device already verified)
+        if (data.skipVerification) {
+          // Direct login, redirect to appropriate page
+          if (data.user?.isAdmin) {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/dashboard';
+          }
+          return;
+        }
+        
         // Show verification code for development
         if (data.code && process.env.NODE_ENV === 'development') {
           console.log('Verification code:', data.code);
@@ -119,6 +130,18 @@ export default function LoginPage() {
 
       if (res.ok) {
         const data = await res.json();
+        
+        // Check if verification was skipped (device already verified)
+        if (data.skipVerification) {
+          // Direct login, redirect to appropriate page
+          if (data.user?.isAdmin) {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/dashboard';
+          }
+          return;
+        }
+        
         // Show verification code for development
         if (data.code && process.env.NODE_ENV === 'development') {
           console.log('Verification code:', data.code);
