@@ -4,6 +4,7 @@ import { generateToken } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import VerificationCode from '@/models/VerificationCode';
+import { setDeviceVerified } from '@/lib/auth-cookies';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,6 +94,9 @@ export async function POST(request: NextRequest) {
       maxAge: 90 * 24 * 60 * 60,
       path: '/',
     });
+
+    // Set device as verified for future logins
+    setDeviceVerified(formattedPhone, response);
 
     console.log('[Verify Login] Login verified for:', user._id);
 

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار المصادقة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            min-height: 50px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            border-radius: 5px; 
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>اختبار نظام المصادقة مع الكوكيز</h1>
+    
+    <div class="card">
+        <h3>الكوكيز الحالية:</h3>
+        <div id="cookiesDisplay" class="result"></div>
+        <button onclick="displayCookies()">عرض الكوكيز</button>
+    </div>
+    
+    <div class="card">
+        <h3>1. تسجيل الدخول</h3>
+        <input type="text" id="phone1" placeholder="رقم الهاتف" value="90908041">
+        <button onclick="login()">تسجيل دخول</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+    
+    <div class="card">
+        <h3>2. التحقق من الكود</h3>
+        <input type="text" id="phone2" placeholder="رقم الهاتف" value="90908041">
+        <input type="text" id="code" placeholder="كود التحقق" maxlength="4">
+        <button onclick="verify()">تحقق</button>
+        <div id="verifyResult" class="result"></div>
+    </div>
+    
+    <div class="card">
+        <h3>3. تسجيل دخول مرة أخرى (يجب تخطي التحقق)</h3>
+        <input type="text" id="phone3" placeholder="رقم الهاتف" value="90908041">
+        <button onclick="loginAgain()">تسجيل دخول مرة أخرى</button>
+        <div id="loginAgainResult" class="result"></div>
+    </div>
+    
+    <div class="card">
+        <h3>4. مسح الكوكيز</h3>
+        <button onclick="clearCookies()">مسح الكوكيز</button>
+        <div id="clearResult" class="result"></div>
+    </div>
+
+    <script>
+        function displayCookies() {
+            const cookies = document.cookie || 'لا توجد كوكيز';
+            document.getElementById('cookiesDisplay').innerHTML = `<pre>${cookies}</pre>`;
+        }
+        
+        async function login() {
+            const phone = document.getElementById('phone1').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (data.skipVerification) {
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = `✅ تم تسجيل الدخول مباشرة (تم تخطي التحقق)<br><pre>${JSON.stringify(data.user, null, 2)}</pre>`;
+                    } else {
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = `✅ تم إرسال كود التحقق<br>الكود (للاختبار): <strong>${data.code || 'تم الإرسال للبريد الإلكتروني'}</strong>`;
+                        document.getElementById('code').value = data.code || '';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ خطأ: ${data.error}`;
+                }
+                displayCookies();
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ خطأ في الشبكة: ${error.message}`;
+            }
+        }
+        
+        async function verify() {
+            const phone = document.getElementById('phone2').value;
+            const code = document.getElementById('code').value;
+            const resultDiv = document.getElementById('verifyResult');
+            
+            try {
+                const response = await fetch('/api/auth/login-check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone, code })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ تم التحقق بنجاح وحفظ الكوكي<br><pre>${JSON.stringify(data.user, null, 2)}</pre>`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ خطأ: ${data.error}`;
+                }
+                displayCookies();
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ خطأ في الشبكة: ${error.message}`;
+            }
+        }
+        
+        async function loginAgain() {
+            const phone = document.getElementById('phone3').value;
+            const resultDiv = document.getElementById('loginAgainResult');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (data.skipVerification) {
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = `🎉 ممتاز! تم تخطي التحقق لأن الجهاز موثوق<br><pre>${JSON.stringify(data.user, null, 2)}</pre>`;
+                    } else {
+                        resultDiv.className = 'result error';
+                        resultDiv.innerHTML = `❌ لم يتم تخطي التحقق - قد تكون هناك مشكلة<br>الكود الجديد: <strong>${data.code}</strong>`;
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ خطأ: ${data.error}`;
+                }
+                displayCookies();
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ خطأ في الشبكة: ${error.message}`;
+            }
+        }
+        
+        function clearCookies() {
+            // Clear all cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            document.getElementById('clearResult').className = 'result success';
+            document.getElementById('clearResult').innerHTML = '✅ تم مسح جميع الكوكيز';
+            displayCookies();
+        }
+        
+        // Auto-display cookies on page load
+        window.onload = displayCookies;
+    </script>
+</body>
+</html>
