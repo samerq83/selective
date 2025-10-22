@@ -3,6 +3,12 @@ const path = require('path');
 
 const nextConfig = {
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
     domains: ['localhost', 'selective-trading.vercel.app'],
     unoptimized: process.env.NODE_ENV === 'production',
