@@ -9,6 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        'primary-red': '#DC2626',
+        'primary-black': '#0F0F0F',
+        'primary-white': '#FFFFFF',
+        'accent-red': '#EF4444',
+        'accent-darkGray': '#1F1F1F',
+        'accent-lightGray': '#F5F5F5',
         primary: {
           red: '#DC2626',
           black: '#0F0F0F',
