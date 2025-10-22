@@ -233,7 +233,7 @@ export default function LoginPage() {
               <p className="text-gray-600 text-center mb-6">
                 {t('verifyEmailDesc', language)}
                 <br />
-                <span className="font-semibold text-primary-red" dir="ltr">{verificationEmail || phone}</span>
+                <span className="font-semibold text-primary-red" dir="ltr">{phone}</span>
               </p>
 
               <form onSubmit={handleVerify} className="space-y-4">

@@ -4,6 +4,7 @@ import { formatPhone } from '@/lib/utils';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import VerificationCode from '@/models/VerificationCode';
+import { sendVerificationEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
     const formattedPhone = formatPhone(phone);
     console.log('[Login] Formatted phone:', formattedPhone);
 
-    // Find or create user
+    // Find or create user (keep original behavior)
     let user = await User.findOne({ phone: formattedPhone });
     console.log('[Login] User found:', user ? `ID: ${user._id}, isAdmin: ${user.isAdmin}` : 'Not found, creating new user');
 
@@ -53,10 +54,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate and save verification code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate 4-digit verification code (keep original format)
+    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
     const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 10); // 10 minutes
+    expiresAt.setMinutes(expiresAt.getMinutes() + 30); // 30 minutes
 
     // Remove any existing login codes for this phone
     await VerificationCode.deleteMany({ phone: formattedPhone, type: 'login' });
@@ -69,14 +70,26 @@ export async function POST(request: NextRequest) {
       expiresAt,
     });
 
-    console.log('[Login] Verification code generated:', verificationCode);
+    console.log('[Login] 4-digit verification code generated:', verificationCode);
 
-    // In development, return the code for testing
+    // Send verification email if user has email (but don't require it)
+    if (user.email) {
+      try {
+        await sendVerificationEmail(user.email, verificationCode, user.name || 'User');
+        console.log('[Login] Verification email sent to:', user.email);
+      } catch (emailError) {
+        console.error('[Login] Failed to send email:', emailError);
+        // Don't fail the request if email fails
+      }
+    }
+
+    // Return simple response (same as original behavior)
     const responseData: any = {
       success: true,
       message: 'Verification code sent',
     };
 
+    // In development, return the code for testing
     if (process.env.NODE_ENV === 'development') {
       responseData.code = verificationCode;
     }
