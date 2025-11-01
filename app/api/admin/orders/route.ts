@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminOrders } from '@/lib/simple-db';
+import { getAdminOrders } from '@/lib/admin-mongodb';
 import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     console.log('[Admin Orders] Params:', { page, limit, status, search, startDate, endDate, customerId });
     
-    const result = getAdminOrders({
+    const result = await getAdminOrders({
       page,
       limit,
       status,

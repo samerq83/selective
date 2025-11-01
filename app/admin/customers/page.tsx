@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import Navbar from '@/components/Navbar';
+import AdminNavbar from '@/components/AdminNavbar';
 import { FaUser, FaPhone, FaMapMarkerAlt, FaCalendar, FaSearch, FaBan, FaCheck, FaPlus, FaEdit, FaTrash, FaTimes, FaShoppingBag, FaBuilding } from 'react-icons/fa';
 
 interface Customer {
@@ -201,10 +201,12 @@ export default function CustomersPage() {
   const formatDate = (dateString?: string) => {
     if (!dateString) return t('never');
     const date = new Date(dateString);
-    return date.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
+    const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+    return date.toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
+      calendar: 'gregory'
     });
   };
 
@@ -222,7 +224,7 @@ export default function CustomersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir={dir}>
-      <Navbar />
+      <AdminNavbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex justify-between items-center">

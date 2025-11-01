@@ -12,7 +12,7 @@ export async function PUT(
     await connectDB();
 
     const body = await request.json();
-    const { nameEn, nameAr, image, isAvailable } = body;
+    const { nameEn, nameAr, image, isAvailable, unitType } = body;
 
     const updateData: any = {};
     
@@ -26,6 +26,7 @@ export async function PUT(
     // Update other fields if provided
     if (image !== undefined) updateData.image = image;
     if (isAvailable !== undefined) updateData.isAvailable = isAvailable;
+    if (unitType !== undefined) updateData.unitType = unitType;
 
     const product = await Product.findByIdAndUpdate(
       params.id,
@@ -49,6 +50,7 @@ export async function PUT(
       slug: product.slug,
       image: product.image,
       isAvailable: product.isAvailable,
+      unitType: product.unitType || 'carton',
       order: product.order,
     };
 

@@ -230,7 +230,12 @@ export default function FavoritesPage() {
 
                 <div className="px-6 py-3 bg-gray-50 border-t border-gray-100">
                   <p className="text-xs text-gray-500">
-                    {t('created')}: {new Date(favorite.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                    {t('created')}: {new Date(favorite.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      calendar: 'gregory'
+                    })}
                   </p>
                 </div>
               </div>

@@ -48,7 +48,7 @@ const enTranslations = {
     welcomeMessage: 'Order the products you love easily',
     secureLogin: 'Secure login with email verification',
     verifyEmail: 'Verify Your Email',
-    verifyEmailDesc: 'We sent a 4-digit code to the email linked to the account',
+    verifyEmailDesc: 'We sent a 4-digit code to the following email',
     verifyPhone: 'Verify Your Phone',
     verifyPhoneDesc: 'We sent a 4-digit code to',
     verificationCode: 'Verification Code',
@@ -87,6 +87,9 @@ const enTranslations = {
     editOrder: 'Edit Order',
     cancelOrder: 'Cancel Order',
     quantity: 'Quantity',
+    unitType: 'Unit Type',
+    carton: 'Carton',
+    piece: 'Piece',
     totalItems: 'Total Items',
     addMessage: 'Add Message (Optional)',
     messagePlaceholder: 'Add any special notes or instructions...',
@@ -131,6 +134,7 @@ const enTranslations = {
     
     // Admin
     admin: 'Admin',
+    admins: 'Admins',
     adminPanel: 'Admin Panel',
     manageProducts: 'Manage Products',
     manageCustomers: 'Manage Customers',
@@ -376,7 +380,7 @@ const arTranslations = {
     welcomeMessage: 'اطلب المنتجات التي تحبها بسهولة',
     secureLogin: 'تسجيل دخول آمن مع التحقق من البريد الإلكتروني',
     verifyEmail: 'تحقق من بريدك الإلكتروني',
-    verifyEmailDesc: 'لقد أرسلنا رمز مكون من 4 أرقام إلى البريد المرتبط بالحساب',
+    verifyEmailDesc: 'لقد أرسلنا رمز مكون من 4 أرقام إلى البريد التالي',
     verifyPhone: 'تحقق من رقم هاتفك',
     verifyPhoneDesc: 'لقد أرسلنا رمز مكون من 4 أرقام إلى',
     verificationCode: 'رمز التحقق',
@@ -415,6 +419,9 @@ const arTranslations = {
     editOrder: 'تعديل الطلب',
     cancelOrder: 'إلغاء الطلب',
     quantity: 'الكمية',
+    unitType: 'نوع الوحدة',
+    carton: 'كرتون',
+    piece: 'قطعة',
     totalItems: 'إجمالي القطع',
     addMessage: 'إضافة رسالة (اختياري)',
     messagePlaceholder: 'أضف أي ملاحظات أو تعليمات خاصة...',
@@ -456,6 +463,7 @@ const arTranslations = {
     
     // Admin
     admin: 'المدير',
+    admins: 'المديرين',
     adminPanel: 'لوحة الإدارة',
     manageProducts: 'إدارة المنتجات',
     manageCustomers: 'إدارة العملاء',

@@ -1,88 +1,88 @@
----
-description: Repository Information Overview
-alwaysApply: true
----
+# Repository Information
 
-# Selective Trading - نظام إدارة طلبات منتجات الألبان
+## Project Structure
+- **Framework**: Next.js 14.2.33 with TypeScript
+- **Testing Framework**: Playwright
+- **Language**: TypeScript (100% TS codebase)
+- **Database**: MongoDB
+- **UI Components**: React with Tailwind CSS
 
-## ملخص
-نظام متكامل لإدارة طلبات منتجات الألبان لشركة Selective Trading. يتيح للعملاء إنشاء وإدارة طلباتهم بسهولة، وللمسؤولين متابعة وإدارة الطلبات والمنتجات والعملاء من خلال لوحة تحكم شاملة.
+## Key Directories
+- `/app` - Next.js app directory with routes
+- `/app/api` - API endpoints
+- `/app/dashboard` - Customer dashboard pages
+- `/app/admin` - Admin panel pages
+- `/components` - Reusable React components
+- `/lib` - Utility functions and helpers
+- `/models` - MongoDB models/schemas
+- `/contexts` - React Context providers (AuthContext, LanguageContext)
+- `/public` - Static assets
 
-## بنية المشروع
-- **app/**: صفحات Next.js (واجهة المستخدم ونقاط API)
-- **components/**: مكونات React المستخدمة في التطبيق
-- **contexts/**: سياقات React للحالة العامة (المصادقة، اللغة)
-- **lib/**: مكتبات مساعدة (الاتصال بقاعدة البيانات، المصادقة، البريد الإلكتروني)
-- **models/**: نماذج MongoDB (المستخدمين، المنتجات، الطلبات)
-- **public/**: الملفات العامة (الصور، التحميلات)
-- **data/**: بيانات التطبيق
+## Important Technical Details
 
-## اللغة والبيئة التشغيلية
-**اللغة**: TypeScript
-**الإصدار**: ES2017
-**نظام البناء**: Next.js
-**مدير الحزم**: npm
+### Order Management
+- Orders support multiple items with mixed unit types (cartons and pieces)
+- Each OrderItem has a `selectedUnitType` field ('carton' | 'piece')
+- The Order API (GET /api/orders) returns formatted orders with proper unit type handling
+- Fallback to 'piece' for legacy orders without selectedUnitType
 
-## التبعيات
-**التبعيات الرئيسية**:
-- next: ^14.2.33 (إطار عمل React)
-- react: ^18.3.0 (مكتبة واجهة المستخدم)
-- mongoose: ^8.19.1 (ODM لقاعدة بيانات MongoDB)
-- next-auth: ^4.24.0 (نظام المصادقة)
-- tailwindcss: ^3.4.18 (إطار CSS)
-- bcryptjs: ^3.0.2 (تشفير كلمات المرور)
-- jsonwebtoken: ^9.0.2 (توكنات المصادقة)
-- nodemailer: ^6.9.8 (إرسال البريد الإلكتروني)
-- recharts: ^3.2.1 (رسوم بيانية)
-- xlsx: ^0.18.5 (تصدير ملفات Excel)
+### Interfaces with selectedUnitType
+Files that define OrderItem interface with `selectedUnitType` field:
+- `/app/dashboard/page.tsx` - Dashboard with reorder modal
+- `/app/dashboard/orders/page.tsx` - Orders list page
+- `/app/dashboard/orders/[id]/page.tsx` - Order detail page
+- `/app/dashboard/quick-order/page.tsx` - Quick order page
 
-**تبعيات التطوير**:
-- typescript: ^5.0.0
-- @types/node: ^20.0.0
-- @types/react: ^18.3.0
-- ts-node: ^10.9.2
+### Authentication
+- Uses email-based verification (4-digit codes)
+- AuthContext manages user state
+- Cookie-based sessions for server-side verification
+- Role-based access (admin vs customer)
 
-## البناء والتثبيت
-```bash
-# تثبيت التبعيات
-npm install
+### Internationalization (i18n)
+- Bilingual support: English (en) and Arabic (ar)
+- LanguageContext manages language selection
+- Translations stored in `/lib/translations.ts`
+- Direction changes based on language (LTR for English, RTL for Arabic)
 
-# تشغيل في وضع التطوير
-npm run dev
+### Product Management
+- Products have name in both English and Arabic
+- Products have availability status
+- Support for images and descriptions
 
-# بناء للإنتاج
-npm run build
+## Translation Keys Used
+- `pieces` - "pieces" (English) / "قطعة" (Arabic)
+- `carton` - "carton" (English) / "كرتون" (Arabic)
+- Unit types properly localized throughout the UI
 
-# تشغيل نسخة الإنتاج
-npm run start
-```
+## Admin Dashboard Product Analysis Fix (Nov 2024)
 
-## قاعدة البيانات
-**نوع قاعدة البيانات**: MongoDB
-**الإصدار**: v5 أو أحدث
-**اتصال**: mongodb+srv://mr000000_db_user:zohwlq0wOWpwihaK@cluster0.wv2o5h4.mongodb.net/selective-trading
-**نماذج البيانات**: User, Product, Order, FavoriteOrder, Notification, Settings
+### Issue
+Product names were displaying in Arabic even when viewing the Admin Dashboard in English, causing UI language mismatch.
 
-## المصادقة
-**نظام المصادقة**: JWT (JSON Web Tokens)
-**طريقة التسجيل**: رقم الهاتف (بدون كلمة مرور)
-**تخزين التوكن**: HttpOnly Cookies
-**صلاحيات المستخدمين**: عميل، مسؤول
+### Root Cause
+The `/api/admin/stats` endpoint was not aware of the user's language preference, so the backend always selected Arabic product names first.
 
-## الاختبار
-**إطار الاختبار**: غير محدد في المشروع
-**موقع الاختبارات**: غير محدد في المشروع
+### Solution Implemented
+**1. Frontend Changes (`/app/admin/page.tsx`)**
+- Added `language` parameter to the stats API URL: `?lang=${language}`
+- Added `language` to the useEffect dependency array to refetch data when language changes
 
-## المتطلبات
-- Node.js (v18 أو أحدث)
-- MongoDB (v5 أو أحدث)
-- npm أو yarn
+**2. API Changes (`/app/api/admin/stats/route.ts`)**
+- Extract `lang` parameter from query string: `const lang = searchParams.get('lang') || 'en'`
+- Pass language preference to backend function
 
-## الميزات الرئيسية
-- نظام مصادقة بسيط برقم الهاتف
-- إدارة طلبات منتجات الألبان
-- حفظ الطلبات المفضلة كقوالب
-- لوحة تحكم شاملة للمسؤولين
-- تقارير وإحصائيات مع رسوم بيانية
-- تصدير تقارير Excel
-- دعم اللغتين العربية والإنجليزية
+**3. Backend Changes (`/lib/admin-mongodb.ts`)**
+- Modified `getAdminStatsFromMongoDB()` to accept `language` parameter
+- Updated product name extraction logic to prefer the selected language:
+  - If `language === 'ar'`: prioritize Arabic names, fallback to English
+  - If `language === 'en'`: prioritize English names, fallback to Arabic
+- Handles three product name formats:
+  - Nested objects: `product.name.ar`/`product.name.en`
+  - Flat properties: `product.nameAr`/`product.nameEn`
+  - Order item fallback: `item.productName`
+
+### Result
+✅ Admin dashboard now displays product names in the correct language matching UI language
+✅ Chart updates automatically when user switches languages
+✅ Gracefully handles missing product data by filtering out "Unknown" entries

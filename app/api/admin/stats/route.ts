@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminStats } from '@/lib/simple-db';
+import { getAdminStatsFromMongoDB } from '@/lib/admin-mongodb';
 import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -19,9 +19,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get('filter') || 'today'; // default to 'today'
     const customDate = searchParams.get('date') || undefined;
+    const lang = searchParams.get('lang') || 'en'; // Get language preference
 
-    console.log('[Admin Stats] Fetching stats with filter:', filter, 'customDate:', customDate);
-    const stats = getAdminStats(filter, customDate);
+    console.log('[Admin Stats] Fetching stats with filter:', filter, 'customDate:', customDate, 'language:', lang);
+    const stats = await getAdminStatsFromMongoDB(filter, customDate, lang);
     console.log('[Admin Stats] Stats:', stats);
 
     return NextResponse.json(stats);

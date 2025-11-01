@@ -27,16 +27,11 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    // Clear device verification cookie
-    response.cookies.set('verified_device', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    });
+    // NOTE: We do NOT clear 'verified_device' cookie
+    // This allows users to skip verification on their trusted device
+    // even after logging out
 
-    console.log('[Logout] User logged out, cookies cleared');
+    console.log('[Logout] User logged out, auth cookies cleared (device verification preserved)');
 
     return response;
   } catch (error) {

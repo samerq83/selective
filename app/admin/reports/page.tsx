@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
-import Navbar from '@/components/Navbar';
+import AdminNavbar from '@/components/AdminNavbar';
 import { FaCalendar, FaDownload, FaChartLine, FaUsers, FaBox } from 'react-icons/fa';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import * as XLSX from 'xlsx-js-style';
@@ -368,13 +368,31 @@ export default function ReportsPage() {
     );
   }
 
-  if (!user || !user.isAdmin || !reportData) {
-    return null;
+  if (!user || !user.isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <AdminNavbar />
+        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+          <p className="text-gray-600">{t('error', language)}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!reportData) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <AdminNavbar />
+        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+          <div className="spinner"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <AdminNavbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
@@ -398,6 +416,22 @@ export default function ReportsPage() {
 
         {/* Date Range Filter */}
         <div className="card mb-6">
+          <div className="mb-4">
+            <button
+              onClick={() => {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const todayStr = `${year}-${month}-${day}`;
+                setStartDate(todayStr);
+                setEndDate(todayStr);
+              }}
+              className="bg-primary-red hover:bg-accent-red text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300"
+            >
+              {language === 'ar' ? 'طلبات اليوم' : "Today's Orders"}
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">

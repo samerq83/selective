@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
-import { updateUser, findUserById } from '@/lib/simple-db';
+import { updateUserInMongoDB, findUserByIdFromMongoDB } from '@/lib/admin-mongodb';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const user = findUserById(authUser.userId);
+    const user = await findUserByIdFromMongoDB(authUser.userId);
     
     if (!user) {
       console.log('[Profile] User not found:', authUser.userId);
@@ -93,7 +93,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Update user profile
-    const updatedUser = updateUser(authUser.userId, {
+    const updatedUser = await updateUserInMongoDB(authUser.userId, {
       name: name?.trim() || '',
       companyName: companyName?.trim() || '',
       email: email?.trim() || '',

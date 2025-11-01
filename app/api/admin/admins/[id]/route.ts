@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readDB, writeDB } from '@/lib/simple-db';
+import { updateAdminInMongoDB, deleteAdminFromMongoDB } from '@/lib/admin-mongodb';
 import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -14,25 +14,16 @@ export async function PUT(
     const body = await request.json();
     const { phone, name, email, isActive } = body;
 
-    const db = readDB();
-    const index = db.users.findIndex(u => u.id === params.id);
-    
-    if (index === -1) {
-      return NextResponse.json(
-        { error: 'Admin not found' },
-        { status: 404 }
-      );
-    }
-
     // Update only provided fields
-    if (phone !== undefined) db.users[index].phone = phone;
-    if (name !== undefined) db.users[index].name = name;
-    if (email !== undefined) db.users[index].email = email;
-    if (isActive !== undefined) db.users[index].isActive = isActive;
+    const updates: any = {};
+    if (phone !== undefined) updates.phone = phone;
+    if (name !== undefined) updates.name = name;
+    if (email !== undefined) updates.email = email;
+    if (isActive !== undefined) updates.isActive = isActive;
 
-    writeDB(db);
+    const updatedAdmin = await updateAdminInMongoDB(params.id, updates);
 
-    return NextResponse.json({ admin: db.users[index] });
+    return NextResponse.json({ admin: updatedAdmin });
   } catch (error: any) {
     console.error('Update admin error:', error);
     
@@ -40,6 +31,13 @@ export async function PUT(
       return NextResponse.json(
         { error: error.message },
         { status: 403 }
+      );
+    }
+
+    if (error.message === 'Admin not found') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 404 }
       );
     }
     
@@ -57,27 +55,7 @@ export async function DELETE(
   try {
     await requireAdmin();
 
-    const db = readDB();
-    const index = db.users.findIndex(u => u.id === params.id);
-    
-    if (index === -1) {
-      return NextResponse.json(
-        { error: 'Admin not found' },
-        { status: 404 }
-      );
-    }
-
-    // Don't allow deleting the last admin
-    const adminCount = db.users.filter(u => u.isAdmin).length;
-    if (adminCount <= 1) {
-      return NextResponse.json(
-        { error: 'Cannot delete the last admin' },
-        { status: 400 }
-      );
-    }
-
-    db.users.splice(index, 1);
-    writeDB(db);
+    await deleteAdminFromMongoDB(params.id);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
@@ -87,6 +65,20 @@ export async function DELETE(
       return NextResponse.json(
         { error: error.message },
         { status: 403 }
+      );
+    }
+
+    if (error.message === 'Admin not found') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 404 }
+      );
+    }
+
+    if (error.message === 'Cannot delete the last admin') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
       );
     }
     

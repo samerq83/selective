@@ -28,29 +28,26 @@ export async function POST(request: NextRequest) {
 
     // Check if device is already verified
     const deviceIsVerified = isDeviceVerified(formattedPhone, request);
-    console.log('[Login] Device verification status:', deviceIsVerified);
+    console.log('[Login] Device verification status for phone', formattedPhone, ':', deviceIsVerified);
+    console.log('[Login] Request cookies:', request.cookies.getAll().map(c => ({ name: c.name, value: c.value.substring(0, 50) + '...' })));
 
-    // Find or create user (keep original behavior)
+    // Find user - don't create automatically
     let user = await User.findOne({ phone: formattedPhone });
-    console.log('[Login] User found:', user ? `ID: ${user._id}, isAdmin: ${user.isAdmin}` : 'Not found, creating new user');
+    console.log('[Login] User found:', user ? `ID: ${user._id}, isAdmin: ${user.isAdmin}` : 'Not found');
 
     if (!user) {
-      user = await User.create({
-        phone: formattedPhone,
-        name: 'User',
-        companyName: '',
-        email: '',
-        address: '',
-        isAdmin: false,
-        isActive: true,
-        lastLogin: new Date(),
-      });
-      console.log('[Login] New user created:', user._id);
-    } else {
-      // Update last login
-      user.lastLogin = new Date();
-      await user.save();
+      return NextResponse.json(
+        { 
+          error: 'هذا الرقم غير مسجل لدينا. الرجاء إنشاء حساب جديد.',
+          requiresSignup: true
+        },
+        { status: 404 }
+      );
     }
+
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
 
     if (!user.isActive) {
       return NextResponse.json(
@@ -62,7 +59,11 @@ export async function POST(request: NextRequest) {
     // If device is already verified, allow direct login
     if (deviceIsVerified) {
       console.log('[Login] Device is verified, allowing direct login');
-      const token = generateToken(user._id.toString(), user.isAdmin);
+      const token = generateToken({
+        userId: (user._id as any).toString(),
+        phone: user.phone,
+        isAdmin: user.isAdmin
+      });
       
       const response = NextResponse.json({
         success: true,
@@ -75,9 +76,9 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Set auth token cookie
+      // Set auth token cookie for 3 months
       response.cookies.set('auth-token', token, {
-        maxAge: 7 * 24 * 60 * 60, // 7 days
+        maxAge: 90 * 24 * 60 * 60, // 90 days (3 months)
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -120,6 +121,7 @@ export async function POST(request: NextRequest) {
     const responseData: any = {
       success: true,
       message: 'Verification code sent',
+      email: user.email || null, // Include user email for display
     };
 
     // In development, return the code for testing

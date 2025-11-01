@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
-import Navbar from '@/components/Navbar';
+import AdminNavbar from '@/components/AdminNavbar';
 import { FiPackage, FiShoppingBag, FiCheckCircle, FiUsers, FiTrendingUp, FiCalendar } from 'react-icons/fi';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -18,6 +18,11 @@ interface Stats {
     product: string;
     quantity: number;
   }>;
+  statusCounts: {
+    new: number;
+    received: number;
+    [key: string]: number;
+  };
 }
 
 interface Order {
@@ -67,18 +72,18 @@ export default function AdminDashboard() {
     if (user && user.isAdmin) {
       fetchData();
     }
-  }, [dateFilter, customDate]);
+  }, [dateFilter, customDate, language]);
 
   const fetchData = async () => {
     try {
       // Build query params for stats
       let statsUrl = '/api/admin/stats';
       if (dateFilter === 'today') {
-        statsUrl += '?filter=today';
+        statsUrl += `?filter=today&lang=${language}`;
       } else if (dateFilter === 'custom' && customDate) {
-        statsUrl += `?filter=custom&date=${customDate}`;
+        statsUrl += `?filter=custom&date=${customDate}&lang=${language}`;
       } else if (dateFilter === 'all') {
-        statsUrl += '?filter=all';
+        statsUrl += `?filter=all&lang=${language}`;
       }
 
       // Fetch stats
@@ -104,7 +109,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <AdminNavbar />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="spinner"></div>
         </div>
@@ -114,45 +119,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
-      <Navbar />
+      <AdminNavbar />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
             {t('adminPanel', language)}
           </h1>
-          <div className="flex gap-3 flex-wrap">
-            <button
-              onClick={() => router.push('/admin/orders')}
-              className="btn-primary"
-            >
-              {t('manageOrders', language)}
-            </button>
-            <button
-              onClick={() => router.push('/admin/products')}
-              className="btn-outline"
-            >
-              {t('manageProducts', language)}
-            </button>
-            <button
-              onClick={() => router.push('/admin/customers')}
-              className="btn-outline"
-            >
-              {t('manageCustomers', language)}
-            </button>
-            <button
-              onClick={() => router.push('/admin/admins')}
-              className="btn-outline"
-            >
-              {language === 'ar' ? 'إدارة المديرين' : 'Manage Admins'}
-            </button>
-            <button
-              onClick={() => router.push('/admin/reports')}
-              className="btn-outline"
-            >
-              {t('reports', language)}
-            </button>
-          </div>
         </div>
 
         {/* Stats Cards */}
@@ -267,8 +240,8 @@ export default function AdminDashboard() {
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={stats.productStats} margin={{ bottom: 60 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="product" 
+                  <XAxis
+                    dataKey="product"
                     angle={-45}
                     textAnchor="end"
                     height={80}
@@ -276,20 +249,33 @@ export default function AdminDashboard() {
                   />
                   <YAxis />
                   <Tooltip />
-                  <Bar 
-                    dataKey="quantity" 
-                    fill="#DC2626" 
-                    label={{ 
-                      position: 'top', 
-                      fill: '#374151', 
+                  <Bar
+                    dataKey="quantity"
+                    fill="#DC2626"
+                    label={{
+                      position: 'top',
+                      fill: '#374151',
                       fontWeight: 'bold',
                       fontSize: 14
-                    }} 
+                    }}
                   />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-gray-500 text-center py-12">{t('noData', language)}</p>
+              <div className="flex flex-col items-center justify-center py-12">
+                <p className="text-gray-500 text-center mb-4">{t('noData', language)}</p>
+                <button
+                  onClick={() => {
+                    // Try to fetch Data with 'all' filter
+                    setDateFilter('all');
+                    // Force refetch after state update
+                    setTimeout(() => fetchData(), 100);
+                  }}
+                  className="btn-primary"
+                >
+                  {language === 'ar' ? 'عرض جميع البيانات' : 'Show All Data'}
+                </button>
+              </div>
             )}
           </div>
 
@@ -298,13 +284,13 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               {t('orderStatus', language)}
             </h2>
-            {stats && (stats.newOrders > 0 || stats.receivedOrders > 0) ? (
+            {stats && (stats.statusCounts && (stats.statusCounts.new > 0 || stats.statusCounts.received > 0)) ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
                     data={[
-                      { name: t('new', language), value: stats.newOrders },
-                      { name: t('received', language), value: stats.receivedOrders },
+                      { name: t('new', language), value: stats.statusCounts?.new || 0 },
+                      { name: t('received', language), value: stats.statusCounts?.received || 0 },
                     ]}
                     cx="50%"
                     cy="50%"
@@ -395,10 +381,11 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-gray-700 text-sm">
-                        {new Date(order.createdAt).toLocaleDateString('en-GB', {
+                        {new Date(order.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-GB', {
                           year: 'numeric',
                           month: '2-digit',
-                          day: '2-digit'
+                          day: '2-digit',
+                          calendar: 'gregory'
                         })}
                       </td>
                     </tr>
