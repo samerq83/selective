@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار التحقق من الجهاز</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border: 2px solid #ddd; border-radius: 8px; }
+        .success { border-color: #4CAF50; background: #f1f8e9; }
+        .error { border-color: #f44336; background: #ffebee; }
+        .info { border-color: #2196F3; background: #e3f2fd; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; background: #f8f9fa; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        .cookie-info { background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 اختبار نظام التحقق من الجهاز</h1>
+        
+        <div class="test-section info">
+            <h3>📱 معلومات الكوكيز الحالية</h3>
+            <div id="cookieInfo" class="cookie-info">جاري التحميل...</div>
+            <button onclick="checkCookies()">🔍 فحص الكوكيز</button>
+            <button onclick="clearAllCookies()" style="background: #dc3545;">🗑️ مسح جميع الكوكيز</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 تسجيل دخول واختبار النظام</h3>
+            <div>
+                <input type="tel" id="phoneInput" placeholder="رقم الهاتف" dir="ltr" value="01234567890">
+                <button onclick="testLogin()">1️⃣ تسجيل دخول</button>
+            </div>
+            <div id="loginResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>✅ إدخال كود التحقق</h3>
+            <div>
+                <input type="text" id="codeInput" placeholder="كود التحقق" maxlength="4">
+                <button onclick="verifyCode()">2️⃣ تحقق من الكود</button>
+            </div>
+            <div id="verifyResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚪 تسجيل خروج</h3>
+            <button onclick="testLogout()">3️⃣ تسجيل خروج</button>
+            <div id="logoutResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 تسجيل دخول مرة أخرى (يجب تخطي التحقق)</h3>
+            <button onclick="testLoginAgain()">4️⃣ تسجيل دخول مرة أخرى</button>
+            <div id="loginAgainResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📧 اختبار عرض البريد الإلكتروني</h3>
+            <button onclick="testEmailDisplay()">5️⃣ اختبار عرض البريد</button>
+            <div id="emailResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentPhone = '';
+        let verificationEmail = '';
+
+        function checkCookies() {
+            const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+                const [name, value] = cookie.trim().split('=');
+                acc[name] = value;
+                return acc;
+            }, {});
+
+            let info = '<strong>الكوكيز الموجودة:</strong><br>';
+            
+            if (cookies['verified_device']) {
+                try {
+                    const deviceData = JSON.parse(decodeURIComponent(cookies['verified_device']));
+                    info += `✅ <strong>verified_device:</strong> الهاتف: ${deviceData.phone}, تم التحقق: ${deviceData.verified}<br>`;
+                } catch (e) {
+                    info += `❌ <strong>verified_device:</strong> ${cookies['verified_device']}<br>`;
+                }
+            } else {
+                info += `❌ <strong>verified_device:</strong> غير موجود<br>`;
+            }
+
+            if (cookies['auth-token']) {
+                info += `✅ <strong>auth-token:</strong> موجود<br>`;
+            } else {
+                info += `❌ <strong>auth-token:</strong> غير موجود<br>`;
+            }
+
+            if (cookies['auth-verified']) {
+                info += `✅ <strong>auth-verified:</strong> ${cookies['auth-verified']}<br>`;
+            } else {
+                info += `❌ <strong>auth-verified:</strong> غير موجود<br>`;
+            }
+
+            document.getElementById('cookieInfo').innerHTML = info;
+        }
+
+        function clearAllCookies() {
+            document.cookie = 'verified_device=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'auth-verified=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            checkCookies();
+            alert('تم مسح جميع الكوكيز');
+        }
+
+        async function testLogin() {
+            const phone = document.getElementById('phoneInput').value;
+            currentPhone = phone;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                
+                const data = await response.json();
+                let result = '';
+                
+                if (data.skipVerification) {
+                    result = '<div style="color: green;">✅ تم تخطي التحقق! تم تسجيل الدخول مباشرة.</div>';
+                } else if (data.success) {
+                    verificationEmail = data.email;
+                    result = `<div style="color: blue;">📧 تم إرسال كود التحقق`;
+                    if (data.email) {
+                        result += `<br><strong>البريد الإلكتروني:</strong> ${data.email}`;
+                    }
+                    if (data.code) {
+                        result += `<br><strong>الكود (development):</strong> ${data.code}`;
+                        document.getElementById('codeInput').value = data.code;
+                    }
+                    result += `</div>`;
+                } else {
+                    result = `<div style="color: red;">❌ خطأ: ${data.error}</div>`;
+                }
+                
+                document.getElementById('loginResult').innerHTML = result;
+                checkCookies();
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = `<div style="color: red;">❌ خطأ: ${error.message}</div>`;
+            }
+        }
+
+        async function verifyCode() {
+            const code = document.getElementById('codeInput').value;
+            
+            try {
+                const response = await fetch('/api/auth/login-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: currentPhone, code })
+                });
+                
+                const data = await response.json();
+                let result = '';
+                
+                if (data.success) {
+                    result = '<div style="color: green;">✅ تم التحقق بنجاح! تم حفظ الجهاز.</div>';
+                } else {
+                    result = `<div style="color: red;">❌ خطأ: ${data.error}</div>`;
+                }
+                
+                document.getElementById('verifyResult').innerHTML = result;
+                checkCookies();
+            } catch (error) {
+                document.getElementById('verifyResult').innerHTML = `<div style="color: red;">❌ خطأ: ${error.message}</div>`;
+            }
+        }
+
+        async function testLogout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                let result = '';
+                
+                if (data.success) {
+                    result = '<div style="color: green;">✅ تم تسجيل الخروج. (يجب أن يبقى كوكي verified_device)</div>';
+                } else {
+                    result = `<div style="color: red;">❌ خطأ: ${data.message}</div>`;
+                }
+                
+                document.getElementById('logoutResult').innerHTML = result;
+                setTimeout(() => checkCookies(), 500);
+            } catch (error) {
+                document.getElementById('logoutResult').innerHTML = `<div style="color: red;">❌ خطأ: ${error.message}</div>`;
+            }
+        }
+
+        async function testLoginAgain() {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: currentPhone })
+                });
+                
+                const data = await response.json();
+                let result = '';
+                
+                if (data.skipVerification) {
+                    result = '<div style="color: green;">🎉 ممتاز! تم تخطي التحقق والدخول مباشرة!</div>';
+                } else if (data.success) {
+                    result = '<div style="color: orange;">⚠️ ما زال يطلب كود التحقق (هذا خطأ!)</div>';
+                } else {
+                    result = `<div style="color: red;">❌ خطأ: ${data.error}</div>`;
+                }
+                
+                document.getElementById('loginAgainResult').innerHTML = result;
+                checkCookies();
+            } catch (error) {
+                document.getElementById('loginAgainResult').innerHTML = `<div style="color: red;">❌ خطأ: ${error.message}</div>`;
+            }
+        }
+
+        async function testEmailDisplay() {
+            const result = verificationEmail ? 
+                `<div style="color: green;">✅ البريد الإلكتروني المحفوظ: ${verificationEmail}</div>` :
+                `<div style="color: red;">❌ لا يوجد بريد إلكتروني محفوظ</div>`;
+                
+            document.getElementById('emailResult').innerHTML = result;
+        }
+
+        // تحميل معلومات الكوكيز عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', checkCookies);
+    </script>
+</body>
+</html>
