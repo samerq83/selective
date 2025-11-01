@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
-import Navbar from '@/components/Navbar';
+import AdminNavbar from '@/components/AdminNavbar';
 import { FiEdit2, FiToggleLeft, FiToggleRight, FiArrowLeft, FiPlus, FiTrash2 } from 'react-icons/fi';
 
 interface Product {
@@ -16,6 +16,7 @@ interface Product {
   };
   image: string;
   isAvailable: boolean;
+  unitType: 'carton' | 'piece' | 'both';
   order: number;
 }
 
@@ -30,6 +31,7 @@ export default function AdminProductsPage() {
   const [nameEn, setNameEn] = useState('');
   const [nameAr, setNameAr] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [unitType, setUnitType] = useState<'carton' | 'piece' | 'both'>('carton');
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -83,6 +85,7 @@ export default function AdminProductsPage() {
     setNameEn(product.name.en);
     setNameAr(product.name.ar);
     setImageUrl(product.image || '');
+    setUnitType(product.unitType || 'carton');
   };
 
   const handleSaveEdit = async () => {
@@ -95,7 +98,7 @@ export default function AdminProductsPage() {
       const res = await fetch(`/api/products/${editingProduct._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nameEn, nameAr, image: imageUrl }),
+        body: JSON.stringify({ nameEn, nameAr, image: imageUrl, unitType }),
       });
 
       if (res.ok) {
@@ -104,6 +107,7 @@ export default function AdminProductsPage() {
         setNameEn('');
         setNameAr('');
         setImageUrl('');
+        setUnitType('carton');
         fetchProducts();
       } else {
         alert(t('error', language));
@@ -128,6 +132,7 @@ export default function AdminProductsPage() {
           nameEn, 
           nameAr, 
           image: imageUrl || '/images/placeholder.png',
+          unitType,
           isAvailable: true 
         }),
       });
@@ -138,6 +143,7 @@ export default function AdminProductsPage() {
         setNameEn('');
         setNameAr('');
         setImageUrl('');
+        setUnitType('carton');
         fetchProducts();
       } else {
         alert(t('error', language));
@@ -213,7 +219,7 @@ export default function AdminProductsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <AdminNavbar />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="spinner"></div>
         </div>
@@ -223,7 +229,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
-      <Navbar />
+      <AdminNavbar />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex items-center justify-between mb-8">
@@ -327,6 +333,27 @@ export default function AdminProductsPage() {
                     />
                   </div>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {language === 'ar' ? 'نوع الوحدة' : 'Unit Type'}
+                  </label>
+                  <select
+                    value={unitType}
+                    onChange={(e) => setUnitType(e.target.value as 'carton' | 'piece' | 'both')}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-red focus:border-transparent"
+                  >
+                    <option value="carton">
+                      {language === 'ar' ? 'كرتون' : 'Carton'}
+                    </option>
+                    <option value="piece">
+                      {language === 'ar' ? 'قطعة' : 'Piece'}
+                    </option>
+                    <option value="both">
+                      {language === 'ar' ? 'كرتون وقطعة' : 'Carton & Piece'}
+                    </option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex gap-3 mt-6">
@@ -342,6 +369,7 @@ export default function AdminProductsPage() {
                     setNameEn('');
                     setNameAr('');
                     setImageUrl('');
+                    setUnitType('carton');
                   }}
                   className="btn-outline flex-1"
                 >
@@ -431,6 +459,27 @@ export default function AdminProductsPage() {
                     />
                   </div>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {language === 'ar' ? 'نوع الوحدة' : 'Unit Type'}
+                  </label>
+                  <select
+                    value={unitType}
+                    onChange={(e) => setUnitType(e.target.value as 'carton' | 'piece' | 'both')}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-red focus:border-transparent"
+                  >
+                    <option value="carton">
+                      {language === 'ar' ? 'كرتون' : 'Carton'}
+                    </option>
+                    <option value="piece">
+                      {language === 'ar' ? 'قطعة' : 'Piece'}
+                    </option>
+                    <option value="both">
+                      {language === 'ar' ? 'كرتون وقطعة' : 'Carton & Piece'}
+                    </option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex gap-3 mt-6">
@@ -446,6 +495,7 @@ export default function AdminProductsPage() {
                     setNameEn('');
                     setNameAr('');
                     setImageUrl('');
+                    setUnitType('carton');
                   }}
                   className="btn-outline flex-1"
                 >

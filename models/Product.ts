@@ -8,6 +8,7 @@ export interface IProduct extends Document {
   slug: string;
   image: string;
   isAvailable: boolean;
+  unitType: 'carton' | 'piece' | 'both';
   order: number;
   createdAt: Date;
   updatedAt: Date;
@@ -38,6 +39,11 @@ const ProductSchema: Schema<IProduct> = new Schema(
     isAvailable: {
       type: Boolean,
       default: true,
+    },
+    unitType: {
+      type: String,
+      enum: ['carton', 'piece', 'both'],
+      default: 'carton',
     },
     order: {
       type: Number,

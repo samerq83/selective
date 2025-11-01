@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
-import Navbar from '@/components/Navbar';
+import AdminNavbar from '@/components/AdminNavbar';
 import { FiEdit2, FiArrowLeft, FiPlus, FiTrash2, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 
 interface Admin {
@@ -172,7 +172,7 @@ export default function AdminManagementPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <AdminNavbar />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="spinner"></div>
         </div>
@@ -182,7 +182,7 @@ export default function AdminManagementPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
-      <Navbar />
+      <AdminNavbar />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex items-center justify-between mb-8">
@@ -400,8 +400,13 @@ export default function AdminManagementPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {admin.lastLogin 
-                        ? new Date(admin.lastLogin).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')
+                      {admin.lastLogin
+                        ? new Date(admin.lastLogin).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            calendar: 'gregory'
+                          })
                         : '-'
                       }
                     </td>

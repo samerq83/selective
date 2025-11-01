@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readDB, writeDB, updateUser } from '@/lib/simple-db';
+import { updateCustomerInMongoDB, deleteCustomerFromMongoDB } from '@/lib/admin-mongodb';
 import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -20,30 +20,13 @@ export async function PATCH(
       );
     }
 
-    const db = readDB();
-    const customer = db.users.find(u => u.id === params.id);
-
-    if (!customer) {
-      return NextResponse.json(
-        { error: 'Customer not found' },
-        { status: 404 }
-      );
-    }
-
-    if (customer.isAdmin) {
-      return NextResponse.json(
-        { error: 'Cannot modify admin users' },
-        { status: 403 }
-      );
-    }
-
-    const updatedCustomer = updateUser(params.id, { isActive });
+    const updatedCustomer = await updateCustomerInMongoDB(params.id, { isActive });
 
     return NextResponse.json({
       success: true,
       customer: {
-        id: updatedCustomer?.id,
-        isActive: updatedCustomer?.isActive,
+        id: updatedCustomer._id,
+        isActive: updatedCustomer.isActive,
       },
     });
   } catch (error: any) {
@@ -53,6 +36,13 @@ export async function PATCH(
       return NextResponse.json(
         { error: error.message },
         { status: 403 }
+      );
+    }
+
+    if (error.message === 'Customer not found' || error.message === 'Cannot modify admin users') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.message === 'Customer not found' ? 404 : 403 }
       );
     }
     
@@ -73,23 +63,6 @@ export async function PUT(
     const body = await req.json();
     const { companyName, name, email, address, isActive } = body;
 
-    const db = readDB();
-    const customer = db.users.find(u => u.id === params.id);
-
-    if (!customer) {
-      return NextResponse.json(
-        { error: 'Customer not found' },
-        { status: 404 }
-      );
-    }
-
-    if (customer.isAdmin) {
-      return NextResponse.json(
-        { error: 'Cannot modify admin users' },
-        { status: 403 }
-      );
-    }
-
     // Update customer fields
     const updates: any = {};
     if (companyName !== undefined) updates.companyName = companyName;
@@ -98,18 +71,18 @@ export async function PUT(
     if (address !== undefined) updates.address = address;
     if (isActive !== undefined) updates.isActive = isActive;
 
-    const updatedCustomer = updateUser(params.id, updates);
+    const updatedCustomer = await updateCustomerInMongoDB(params.id, updates);
 
     return NextResponse.json({
       success: true,
       customer: {
-        _id: updatedCustomer?.id,
-        phone: updatedCustomer?.phone,
-        companyName: updatedCustomer?.companyName,
-        name: updatedCustomer?.name,
-        email: updatedCustomer?.email,
-        address: updatedCustomer?.address,
-        isActive: updatedCustomer?.isActive,
+        _id: updatedCustomer._id,
+        phone: updatedCustomer.phone,
+        companyName: updatedCustomer.companyName,
+        name: updatedCustomer.name,
+        email: updatedCustomer.email,
+        address: updatedCustomer.address,
+        isActive: updatedCustomer.isActive,
       },
     });
   } catch (error: any) {
@@ -119,6 +92,13 @@ export async function PUT(
       return NextResponse.json(
         { error: error.message },
         { status: 403 }
+      );
+    }
+
+    if (error.message === 'Customer not found' || error.message === 'Cannot modify admin users') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.message === 'Customer not found' ? 404 : 403 }
       );
     }
     
@@ -136,26 +116,7 @@ export async function DELETE(
   try {
     await requireAdmin();
 
-    const db = readDB();
-    const customer = db.users.find(u => u.id === params.id);
-
-    if (!customer) {
-      return NextResponse.json(
-        { error: 'Customer not found' },
-        { status: 404 }
-      );
-    }
-
-    if (customer.isAdmin) {
-      return NextResponse.json(
-        { error: 'Cannot delete admin users' },
-        { status: 403 }
-      );
-    }
-
-    // Remove customer from database
-    db.users = db.users.filter(u => u.id !== params.id);
-    writeDB(db);
+    await deleteCustomerFromMongoDB(params.id);
 
     return NextResponse.json({
       success: true,
@@ -168,6 +129,13 @@ export async function DELETE(
       return NextResponse.json(
         { error: error.message },
         { status: 403 }
+      );
+    }
+
+    if (error.message === 'Customer not found' || error.message === 'Cannot delete admin users') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.message === 'Customer not found' ? 404 : 403 }
       );
     }
     

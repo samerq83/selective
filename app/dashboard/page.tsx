@@ -22,6 +22,7 @@ interface OrderItem {
     ar: string;
   };
   quantity: number;
+  selectedUnitType?: 'carton' | 'piece';
 }
 
 interface Order {
@@ -125,6 +126,7 @@ export default function DashboardPage() {
       const items = selectedOrder.items.map(item => ({
         product: item.product._id,
         quantity: item.quantity,
+        selectedUnitType: item.selectedUnitType || 'piece',
       }));
 
       const response = await fetch('/api/orders', {
@@ -231,15 +233,15 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <Link href="/dashboard/quick-order">
+          <Link href="/dashboard/orders">
             <div className="card card-hover gradient-bg text-white cursor-pointer">
               <div className="flex items-center">
                 <div className="bg-white bg-opacity-20 p-4 rounded-lg mr-4">
-                  <FaBolt className="text-3xl" />
+                  <FaHistory className="text-3xl" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">{t('quickOrder', language)}</h3>
-                  <p className="text-sm opacity-90">{t('reorderLast', language)}</p>
+                  <h3 className="text-xl font-bold">{language === 'ar' ? 'الطلبات السابقة' : 'Previous Orders'}</h3>
+                  <p className="text-sm opacity-90">{language === 'ar' ? 'عرض جميع الطلبات' : 'View all orders'}</p>
                 </div>
               </div>
             </div>
@@ -393,7 +395,10 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <span className="font-bold text-purple-600">
-                      {item.quantity} {language === 'ar' ? 'قطعة' : 'pcs'}
+                      {item.quantity} {item.selectedUnitType === 'carton' 
+                        ? (language === 'ar' ? 'كرتون' : 'cartons')
+                        : (language === 'ar' ? 'قطعة' : 'pieces')
+                      }
                     </span>
                   </div>
                 ))}

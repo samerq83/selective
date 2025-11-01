@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
-import { FaMinus, FaPlus, FaSave, FaTimes, FaHeart } from 'react-icons/fa';
+import { FaMinus, FaPlus, FaSave, FaTimes, FaUpload, FaCheck, FaTimes as FaX } from 'react-icons/fa';
 import Image from 'next/image';
 
 interface Product {
@@ -14,6 +14,7 @@ interface Product {
   slug: string;
   image: string;
   isAvailable: boolean;
+  unitType: 'carton' | 'piece' | 'both';
 }
 
 export default function NewOrderPage() {
@@ -22,13 +23,13 @@ export default function NewOrderPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+  const [selectedUnits, setSelectedUnits] = useState<{ [key: string]: 'carton' | 'piece' }>({});
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
-  const [templateName, setTemplateName] = useState('');
-  const [savingTemplate, setSavingTemplate] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [purchaseOrderFile, setPurchaseOrderFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState('');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -102,6 +103,42 @@ export default function NewOrderPage() {
     return Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setFileError('');
+    
+    if (!file) {
+      setPurchaseOrderFile(null);
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      setFileError(language === 'ar' 
+        ? 'نوع الملف غير مدعوم. الرجاء رفع صورة (JPG, PNG, GIF) أو PDF'
+        : 'File type not supported. Please upload an image (JPG, PNG, GIF) or PDF');
+      setPurchaseOrderFile(null);
+      return;
+    }
+
+    if (file.size > maxSize) {
+      setFileError(language === 'ar' 
+        ? 'حجم الملف كبير جداً. الحد الأقصى 5 MB'
+        : 'File size is too large. Maximum 5 MB');
+      setPurchaseOrderFile(null);
+      return;
+    }
+
+    setPurchaseOrderFile(file);
+  };
+
+  const removeFile = () => {
+    setPurchaseOrderFile(null);
+    setFileError('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -114,10 +151,17 @@ export default function NewOrderPage() {
 
     const items = Object.entries(quantities)
       .filter(([_, qty]) => qty > 0)
-      .map(([productId, quantity]) => ({
-        product: productId,
-        quantity,
-      }));
+      .map(([productId, quantity]) => {
+        const product = products.find(p => p._id === productId);
+        return {
+          product: productId,
+          quantity,
+          // If product has both option, send the selected unit type, otherwise send the product's unit type
+          selectedUnitType: product?.unitType === 'both' 
+            ? (selectedUnits[productId] || 'piece')
+            : (product?.unitType === 'carton' ? 'carton' : 'piece'),
+        };
+      });
 
     if (items.length === 0) {
       setError(t('minimumOrder'));
@@ -127,71 +171,37 @@ export default function NewOrderPage() {
     setSubmitting(true);
 
     try {
+      const formData = new FormData();
+      formData.append('items', JSON.stringify(items));
+      formData.append('message', message);
+      
+      if (purchaseOrderFile) {
+        formData.append('purchaseOrderFile', purchaseOrderFile);
+      }
+
       const response = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, message }),
+        body: formData,
       });
 
       if (response.ok) {
-        // Show success message
+        const data = await response.json();
+        
         setShowSuccessMessage(true);
         
-        // Redirect after 2 seconds
         setTimeout(() => {
           router.push('/dashboard');
         }, 2000);
       } else {
         const data = await response.json();
+        console.error('Order submission failed:', data);
         setError(data.error || t('error'));
       }
     } catch (error) {
+      console.error('Order submission error:', error);
       setError(t('error'));
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const handleSaveTemplate = async () => {
-    if (!templateName.trim()) {
-      alert(t('enterTemplateName'));
-      return;
-    }
-
-    const totalItems = getTotalItems();
-    if (totalItems === 0) {
-      alert(t('selectProductsFirst'));
-      return;
-    }
-
-    const items = Object.entries(quantities)
-      .filter(([_, qty]) => qty > 0)
-      .map(([productId, quantity]) => ({
-        product: productId,
-        quantity,
-      }));
-
-    setSavingTemplate(true);
-
-    try {
-      const response = await fetch('/api/favorites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: templateName, items }),
-      });
-
-      if (response.ok) {
-        alert(t('templateSaved'));
-        setShowSaveTemplate(false);
-        setTemplateName('');
-      } else {
-        const data = await response.json();
-        alert(data.error || t('error'));
-      }
-    } catch (error) {
-      alert(t('error'));
-    } finally {
-      setSavingTemplate(false);
     }
   };
 
@@ -249,7 +259,7 @@ export default function NewOrderPage() {
                 }`}
               >
                 <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                  <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center overflow-hidden">
                     {product.image ? (
                       <Image
                         src={product.image}
@@ -277,28 +287,64 @@ export default function NewOrderPage() {
                 </div>
 
                 {product.isAvailable && (
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-600">
-                      {t('quantity')}:
-                    </span>
-                    <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(product._id, -1)}
-                        className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-lg flex items-center justify-center transition-colors"
-                      >
-                        <FaMinus />
-                      </button>
-                      <span className="text-xl font-bold w-12 text-center">
-                        {quantities[product._id] || 0}
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-600">
+                        {t('quantity')}:
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(product._id, 1)}
-                        className="w-10 h-10 bg-primary-red hover:bg-accent-red text-white rounded-lg flex items-center justify-center transition-colors"
-                      >
-                        <FaPlus />
-                      </button>
+                      <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(product._id, -1)}
+                          className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-lg flex items-center justify-center transition-colors"
+                        >
+                          <FaMinus />
+                        </button>
+                        <span className="text-xl font-bold w-12 text-center">
+                          {quantities[product._id] || 0}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(product._id, 1)}
+                          className="w-10 h-10 bg-primary-red hover:bg-accent-red text-white rounded-lg flex items-center justify-center transition-colors"
+                        >
+                          <FaPlus />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Display Unit Type */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-600">
+                        {language === 'ar' ? 'نوع الوحدة' : 'Unit Type'}:
+                      </span>
+                      
+                      {/* If unitType is 'both', show dropdown for selection */}
+                      {product.unitType === 'both' ? (
+                        <select
+                          value={selectedUnits[product._id] || 'carton'}
+                          onChange={(e) => setSelectedUnits({
+                            ...selectedUnits,
+                            [product._id]: e.target.value as 'carton' | 'piece'
+                          })}
+                          className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-red focus:border-transparent text-sm"
+                        >
+                          <option value="carton">
+                            {language === 'ar' ? 'كرتون' : 'Carton'}
+                          </option>
+                          <option value="piece">
+                            {language === 'ar' ? 'قطعة' : 'Piece'}
+                          </option>
+                        </select>
+                      ) : (
+                        /* If unitType is 'carton' or 'piece', display as text */
+                        <span className="text-sm font-semibold text-primary-red">
+                          {product.unitType === 'carton' 
+                            ? (language === 'ar' ? 'كرتون' : 'Carton')
+                            : (language === 'ar' ? 'قطعة' : 'Piece')
+                          }
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -328,8 +374,69 @@ export default function NewOrderPage() {
             </p>
           </div>
 
+          {/* Purchase Order File Upload */}
+          <div className="card mb-8">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              {language === 'ar' ? 'طلب الشراء (اختياري)' : 'Purchase Order (Optional)'}
+            </label>
+            <p className="text-xs text-gray-600 mb-4">
+              {language === 'ar' 
+                ? 'يمكنك رفع صورة أو ملف PDF لطلب الشراء'
+                : 'You can upload an image or PDF file of the purchase order'}
+            </p>
+            
+            {!purchaseOrderFile ? (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer"
+                onClick={() => document.getElementById('fileInput')?.click()}>
+                <FaUpload className="mx-auto text-4xl text-gray-400 mb-3" />
+                <p className="text-sm font-semibold text-gray-700">
+                  {language === 'ar' ? 'اختر ملف أو اسحبه هنا' : 'Choose a file or drag it here'}
+                </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  {language === 'ar' 
+                    ? 'صيغ مدعومة: JPG, PNG, GIF, PDF - الحد الأقصى 5 MB'
+                    : 'Supported formats: JPG, PNG, GIF, PDF - Max 5 MB'}
+                </p>
+                <input
+                  id="fileInput"
+                  type="file"
+                  onChange={handleFileChange}
+                  accept="image/jpeg,image/png,image/gif,application/pdf"
+                  className="hidden"
+                />
+              </div>
+            ) : (
+              <div className="border border-green-300 bg-green-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FaCheck className="text-green-600 text-lg" />
+                    <div>
+                      <p className="font-semibold text-gray-700">{purchaseOrderFile.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {(purchaseOrderFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeFile}
+                    className="text-red-600 hover:text-red-800 transition-colors"
+                  >
+                    <FaX />
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {fileError && (
+              <div className="mt-3 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {fileError}
+              </div>
+            )}
+          </div>
+
           {/* Total and Actions */}
-          <div className="card bg-gradient-to-r from-primary-black to-dark-gray text-white">
+          <div className="card bg-gradient-to-r from-black to-gray-900 text-white">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-sm opacity-80">{t('totalItems')}</p>
@@ -379,56 +486,9 @@ export default function NewOrderPage() {
                   {t('cancel')}
                 </button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setShowSaveTemplate(true)}
-                disabled={totalItems === 0}
-                className="w-full bg-white bg-opacity-10 hover:bg-opacity-20 disabled:bg-opacity-5 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center"
-              >
-                <FaHeart className="mr-2" />
-                {t('saveAsTemplate')}
-              </button>
             </div>
           </div>
         </form>
-
-        {/* Save Template Modal */}
-        {showSaveTemplate && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                {t('saveAsTemplate')}
-              </h3>
-              <input
-                type="text"
-                value={templateName}
-                onChange={(e) => setTemplateName(e.target.value)}
-                placeholder={t('templateNamePlaceholder')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
-                maxLength={50}
-              />
-              <div className="flex space-x-3 rtl:space-x-reverse">
-                <button
-                  onClick={handleSaveTemplate}
-                  disabled={savingTemplate}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                >
-                  {savingTemplate ? t('saving') : t('save')}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSaveTemplate(false);
-                    setTemplateName('');
-                  }}
-                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
-                >
-                  {t('cancel')}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

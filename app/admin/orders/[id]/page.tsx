@@ -5,9 +5,24 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
-import Navbar from '@/components/Navbar';
-import { FiPrinter, FiCheckCircle, FiTrash2, FiEdit2, FiArrowLeft } from 'react-icons/fi';
-import { useReactToPrint } from 'react-to-print';
+import AdminNavbar from '@/components/AdminNavbar';
+import { FiPrinter, FiCheckCircle, FiTrash2, FiEdit2, FiArrowLeft, FiDownload } from 'react-icons/fi';
+// Import react-to-print dynamically to avoid SSR issues
+let useReactToPrint: any;
+try {
+  if (typeof window !== 'undefined') {
+    const { useReactToPrint: dynamicHook } = require('react-to-print');
+    useReactToPrint = dynamicHook;
+  }
+} catch (error) {
+  console.error('Error importing react-to-print:', error);
+  // Fallback implementation
+  useReactToPrint = () => ({
+    handlePrint: () => {
+      window.print();
+    }
+  });
+}
 
 interface OrderItem {
   product: {
@@ -17,6 +32,7 @@ interface OrderItem {
     image: string;
   };
   quantity: number;
+  selectedUnitType?: 'carton' | 'piece';
 }
 
 interface Order {
@@ -31,6 +47,10 @@ interface Order {
   items: OrderItem[];
   status: 'new' | 'received';
   message?: string;
+  purchaseOrderFile?: {
+    filename: string;
+    path: string;
+  };
   editDeadline: string;
   createdAt: string;
   history: Array<{
@@ -68,7 +88,15 @@ export default function AdminOrderDetailsPage() {
 
   const fetchOrder = async () => {
     try {
-      const res = await fetch(`/api/orders/${params.id}`);
+      const orderId = params.id;
+      if (!orderId) {
+        alert(t('orderNotFound', language));
+        router.push('/admin/orders');
+        return;
+      }
+      
+      console.log('Fetching order with ID:', orderId);
+      const res = await fetch(`/api/orders/${orderId}`);
       if (res.ok) {
         const data = await res.json();
         setOrder(data);
@@ -140,7 +168,7 @@ export default function AdminOrderDetailsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <AdminNavbar />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="spinner"></div>
         </div>
@@ -154,7 +182,7 @@ export default function AdminOrderDetailsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
-      <Navbar />
+      <AdminNavbar />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Actions Bar */}
@@ -275,6 +303,9 @@ export default function AdminOrderDetailsPage() {
                   <th className="text-center py-3 font-semibold text-gray-900">
                     {t('quantity', language)}
                   </th>
+                  <th className="text-center py-3 font-semibold text-gray-900">
+                    {language === 'ar' ? 'نوع الوحدة' : 'Unit Type'}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -285,6 +316,12 @@ export default function AdminOrderDetailsPage() {
                     </td>
                     <td className="py-3 text-center text-gray-900">
                       {item.quantity}
+                    </td>
+                    <td className="py-3 text-center text-gray-900">
+                      {item.selectedUnitType === 'carton' 
+                        ? (language === 'ar' ? 'كرتون' : 'Carton')
+                        : (language === 'ar' ? 'قطعة' : 'Piece')
+                      }
                     </td>
                   </tr>
                 ))}
@@ -297,6 +334,7 @@ export default function AdminOrderDetailsPage() {
                   <td className="py-3 text-center font-bold text-primary-red">
                     {getTotalItems()} {t('pieces', language)}
                   </td>
+                  <td></td>
                 </tr>
               </tfoot>
             </table>
@@ -311,6 +349,44 @@ export default function AdminOrderDetailsPage() {
               <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">
                 {order.message}
               </p>
+            </div>
+          )}
+
+          {/* Purchase Order File */}
+          {order.purchaseOrderFile && (
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                {language === 'ar' ? 'طلب الشراء' : 'Purchase Order'}
+              </h2>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FiDownload className="text-blue-600 text-lg" />
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {order.purchaseOrderFile.filename}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {language === 'ar' ? 'ملف طلب الشراء المرفق' : 'Attached purchase order file'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    if (order.purchaseOrderFile?.path) {
+                      const link = document.createElement('a');
+                      link.href = order.purchaseOrderFile.path;
+                      link.download = order.purchaseOrderFile.filename || 'purchase-order';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }
+                  }}
+                  className="btn-primary flex items-center gap-2 no-print"
+                >
+                  <FiDownload />
+                  {language === 'ar' ? 'تحميل' : 'Download'}
+                </button>
+              </div>
             </div>
           )}
 

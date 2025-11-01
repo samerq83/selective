@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
 import Navbar from '@/components/Navbar';
-import { FiSearch, FiFilter, FiDownload, FiEye, FiCheckCircle } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiDownload, FiEye, FiCheckCircle, FiFile } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 
 interface Order {
@@ -28,6 +28,10 @@ interface Order {
   }>;
   status: 'new' | 'received';
   message?: string;
+  purchaseOrderFile?: {
+    filename: string;
+    path: string;
+  };
   createdAt: string;
 }
 
@@ -46,6 +50,7 @@ function AdminOrdersContent() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [customerFilter, setCustomerFilter] = useState(customerIdFromUrl || '');
+  const [markingAllReceived, setMarkingAllReceived] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -77,7 +82,7 @@ function AdminOrdersContent() {
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders);
-        setTotalPages(data.pagination.pages);
+        setTotalPages(data.totalPages || 1);
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -106,6 +111,42 @@ function AdminOrdersContent() {
     } catch (error) {
       console.error('Error updating order:', error);
       alert(t('error', language));
+    }
+  };
+
+  const handleMarkAllReceived = async () => {
+    const hasNewOrders = orders.some(order => order.status === 'new');
+    
+    if (!hasNewOrders) {
+      alert(language === 'ar' ? 'جميع الطلبات تم استلامها بالفعل' : 'All orders are already received');
+      return;
+    }
+
+    if (!confirm(language === 'ar' ? 'هل تريد تعليم جميع الطلبات كمستلمة؟' : 'Are you sure you want to mark all orders as received?')) {
+      return;
+    }
+
+    try {
+      setMarkingAllReceived(true);
+      const newOrderIds = orders
+        .filter(order => order.status === 'new')
+        .map(order => order._id);
+
+      for (const orderId of newOrderIds) {
+        await fetch(`/api/orders/${orderId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'received' }),
+        });
+      }
+
+      alert(language === 'ar' ? 'تم تحديث جميع الطلبات بنجاح' : 'All orders updated successfully');
+      fetchOrders();
+    } catch (error) {
+      console.error('Error updating orders:', error);
+      alert(t('error', language));
+    } finally {
+      setMarkingAllReceived(false);
     }
   };
 
@@ -201,7 +242,7 @@ function AdminOrdersContent() {
       products.forEach((product: any) => {
         const total = customers.reduce((sum: number, customer: any) => {
           return sum + (matrixData[customer]?.[product] || 0);
-        }, 0);
+        },0);
         totalRow.push(total);
       });
       
@@ -246,6 +287,39 @@ function AdminOrdersContent() {
     return items.reduce((sum, item) => sum + item.quantity, 0);
   };
 
+  const downloadPurchaseOrder = (order: Order) => {
+    if (order.purchaseOrderFile?.path) {
+      const link = document.createElement('a');
+      link.href = order.purchaseOrderFile.path;
+      link.download = order.purchaseOrderFile.filename || 'purchase-order';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    
+    // Always use Gregorian calendar regardless of language
+    const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory'
+    };
+    
+    const dateStr = date.toLocaleDateString(locale, options);
+    const timeStr = date.toLocaleTimeString(locale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    return { date: dateStr, time: timeStr };
+  };
+
   if (loading && orders.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -266,14 +340,27 @@ function AdminOrdersContent() {
           <h1 className="text-3xl font-bold text-gray-900">
             {t('manageOrders', language)}
           </h1>
-          <button
-            onClick={handleExportExcel}
-            className="btn-primary flex items-center gap-2"
-            disabled={orders.length === 0}
-          >
-            <FiDownload />
-            {t('exportExcel', language)}
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleMarkAllReceived}
+              disabled={orders.length === 0 || markingAllReceived || !orders.some(o => o.status === 'new')}
+              className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FiCheckCircle />
+              {markingAllReceived 
+                ? (language === 'ar' ? 'جاري التحديث...' : 'Updating...')
+                : (language === 'ar' ? 'تعليم الجميع كمستلمة' : 'Mark All Received')
+              }
+            </button>
+            <button
+              onClick={handleExportExcel}
+              className="btn-primary flex items-center gap-2"
+              disabled={orders.length === 0}
+            >
+              <FiDownload />
+              {t('exportExcel', language)}
+            </button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -400,50 +487,77 @@ function AdminOrdersContent() {
                         {t('date', language)}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        {language === 'ar' ? 'الوقت' : 'Time'}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                         {t('actions', language)}
                       </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {orders.map((order) => (
-                      <tr key={order._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {order.orderNumber}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{order.customer.name || order.customer.phone}</div>
-                          <div className="text-xs text-gray-500">{order.customer.phone}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {getTotalItems(order.items)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            order.status === 'received' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {order.status === 'received' ? t('received', language) : t('new', language)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(order.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
-                            <FiEye />
-                          </button>
-                          {order.status === 'new' && (
-                            <button
-                              onClick={() => handleMarkReceived(order._id)}
-                              className="text-green-600 hover:text-green-900"
+                    {orders.map((order) => {
+                      const { date, time } = formatDateTime(order.createdAt);
+                      return (
+                        <tr key={order._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {order.orderNumber}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{order.customer.name || order.customer.phone}</div>
+                            <div className="text-xs text-gray-500">{order.customer.phone}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {getTotalItems(order.items)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              order.status === 'received' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {order.status === 'received' ? t('received', language) : t('new', language)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                            {date}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {time}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2 flex items-center">
+                            <button 
+                              onClick={() => {
+                                console.log('Viewing order with ID:', order._id);
+                                console.log('Order data:', order);
+                                router.push(`/admin/orders/${order._id}`);
+                              }}
+                              className="text-blue-600 hover:text-blue-900"
+                              title={language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
                             >
-                              <FiCheckCircle />
+                              <FiEye />
                             </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                            {order.purchaseOrderFile && (
+                              <button
+                                onClick={() => downloadPurchaseOrder(order)}
+                                className="text-orange-600 hover:text-orange-900"
+                                title={language === 'ar' ? 'تحميل طلب الشراء' : 'Download Purchase Order'}
+                              >
+                                <FiFile />
+                              </button>
+                            )}
+                            {order.status === 'new' && (
+                              <button
+                                onClick={() => handleMarkReceived(order._id)}
+                                className="text-green-600 hover:text-green-900"
+                                title={language === 'ar' ? 'تعليم كمستلم' : 'Mark as Received'}
+                              >
+                                <FiCheckCircle />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

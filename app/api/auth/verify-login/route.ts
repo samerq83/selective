@@ -4,6 +4,7 @@ import { generateToken } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import VerificationCode from '@/models/VerificationCode';
+import { setDeviceVerified } from '@/lib/auth-cookies';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,23 +79,19 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Set auth token cookie for 3 months
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 90 * 24 * 60 * 60,
+      maxAge: 90 * 24 * 60 * 60, // 90 days (3 months)
       path: '/',
     });
 
-    response.cookies.set('auth-verified', formattedPhone, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 90 * 24 * 60 * 60,
-      path: '/',
-    });
+    // Mark device as verified for 3 months - this will prevent future verification requests
+    setDeviceVerified(formattedPhone, response);
 
-    console.log('[Verify Login] Login verified for:', user._id);
+    console.log('[Verify Login] Login verified for:', user._id, '- Device marked as verified');
 
     return response;
   } catch (error) {

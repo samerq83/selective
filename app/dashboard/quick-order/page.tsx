@@ -16,6 +16,7 @@ interface OrderItem {
     image: string;
   };
   quantity: number;
+  selectedUnitType?: 'carton' | 'piece';
 }
 
 interface FavoriteOrder {
@@ -196,7 +197,12 @@ export default function QuickOrderPage() {
             
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-sm text-gray-600 mb-3">
-                {t('orderNumber', language)}: {lastOrder.orderNumber} • {new Date(lastOrder.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                {t('orderNumber', language)}: {lastOrder.orderNumber} • {new Date(lastOrder.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  calendar: 'gregory'
+                })}
               </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {lastOrder.items.map((item, index) => (

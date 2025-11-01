@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { FaGlobe, FaSignOutAlt, FaHome, FaBox, FaUsers, FaChartBar, FaChartLine } from 'react-icons/fa';
+import { FaGlobe, FaSignOutAlt, FaHome, FaBox, FaUsers, FaChartBar, FaChartLine, FaCogs } from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -21,11 +21,13 @@ export default function AdminNavbar() {
     { href: '/admin/orders', icon: FaBox, label: t('orders') },
     { href: '/admin/customers', icon: FaUsers, label: t('customers') },
     { href: '/admin/products', icon: FaChartBar, label: t('products') },
+    { href: '/admin/admins', icon: FaCogs, label: t('admins') || 'Admins' },
     { href: '/admin/reports', icon: FaChartLine, label: t('reports') },
+    { href: '/admin/settings', icon: FaGlobe, label: t('settings') },
   ];
 
   return (
-    <nav className="bg-gradient-to-r from-primary-black to-dark-gray shadow-lg sticky top-0 z-40">
+    <nav className="bg-gradient-to-r from-black via-gray-900 to-red-800 shadow-lg sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -35,7 +37,7 @@ export default function AdminNavbar() {
               alt="Selective Trading Logo" 
               width={180} 
               height={50}
-              className="object-contain brightness-0 invert"
+              className="object-contain"
               priority
             />
           </Link>

@@ -46,7 +46,7 @@ export async function GET(
     }
 
     // Format order with complete product information
-    const populatedOrder = {
+    const populatedOrder: any = {
       _id: order._id,
       orderNumber: order.orderNumber,
       customer: {
@@ -57,6 +57,7 @@ export async function GET(
       },
       items: order.items.map((item: any) => ({
         quantity: item.quantity,
+        selectedUnitType: item.selectedUnitType || 'piece',
         product: {
           _id: item.product._id,
           nameEn: item.product.name?.en,
@@ -73,6 +74,10 @@ export async function GET(
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     };
+
+    if (order.purchaseOrderFile) {
+      populatedOrder.purchaseOrderFile = order.purchaseOrderFile;
+    }
 
     console.log('[Order Details] Order found and returned');
     return NextResponse.json(populatedOrder);
@@ -183,6 +188,7 @@ export async function PUT(
             ar: product?.name?.ar,
           },
           quantity: item.quantity,
+          selectedUnitType: item.selectedUnitType || 'piece',
         };
       });
       
@@ -224,7 +230,7 @@ export async function PUT(
       .lean() as any;
 
     // Format response
-    const populatedOrder = {
+    const populatedOrder: any = {
       _id: updatedOrder?._id,
       orderNumber: updatedOrder?.orderNumber,
       customer: {
@@ -235,6 +241,7 @@ export async function PUT(
       },
       items: updatedOrder?.items.map((item: any) => ({
         quantity: item.quantity,
+        selectedUnitType: item.selectedUnitType || 'piece',
         product: {
           _id: item.product._id,
           nameEn: item.product.name?.en,
@@ -251,6 +258,10 @@ export async function PUT(
       createdAt: updatedOrder?.createdAt,
       updatedAt: updatedOrder?.updatedAt,
     };
+
+    if (updatedOrder?.purchaseOrderFile) {
+      populatedOrder.purchaseOrderFile = updatedOrder.purchaseOrderFile;
+    }
 
     console.log('[Order Update] Order updated successfully');
     return NextResponse.json(populatedOrder);

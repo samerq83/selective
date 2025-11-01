@@ -7,6 +7,7 @@ export interface IOrderItem {
     ar: string;
   };
   quantity: number;
+  selectedUnitType?: 'carton' | 'piece';
 }
 
 export interface IOrderHistory {
@@ -26,6 +27,10 @@ export interface IOrder extends Document {
   totalItems: number;
   status: 'new' | 'received';
   message?: string;
+  purchaseOrderFile?: {
+    filename: string;
+    path: string;
+  };
   canEdit: boolean;
   editDeadline?: Date;
   history: IOrderHistory[];
@@ -69,6 +74,11 @@ const OrderSchema: Schema<IOrder> = new Schema(
           required: true,
           min: 1,
         },
+        selectedUnitType: {
+          type: String,
+          enum: ['carton', 'piece'],
+          default: 'piece',
+        },
       },
     ],
     totalItems: {
@@ -85,6 +95,10 @@ const OrderSchema: Schema<IOrder> = new Schema(
       type: String,
       trim: true,
       maxlength: 500,
+    },
+    purchaseOrderFile: {
+      filename: String,
+      path: String,
     },
     canEdit: {
       type: Boolean,

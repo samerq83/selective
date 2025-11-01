@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // Cookie name for device verification
 const VERIFIED_DEVICE_COOKIE = 'verified_device';
 
-// Cookie expiration (30 days)
-const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds
+// Cookie expiration (90 days = 3 months)
+const COOKIE_MAX_AGE = 90 * 24 * 60 * 60; // 90 days in seconds
 
 /**
  * Generate a unique device identifier based on phone number
@@ -26,21 +26,33 @@ export function isDeviceVerified(phone: string, request?: NextRequest): boolean 
     if (request) {
       // Server-side: get from request headers
       cookieValue = request.cookies.get(VERIFIED_DEVICE_COOKIE)?.value;
+      console.log('[Auth-Cookies] Server-side check for phone:', phone);
+      console.log('[Auth-Cookies] Cookie value found:', cookieValue ? 'YES' : 'NO');
     } else if (typeof window !== 'undefined') {
       // Client-side: get from document.cookie
       const match = document.cookie.match(new RegExp(`${VERIFIED_DEVICE_COOKIE}=([^;]+)`));
       cookieValue = match ? match[1] : undefined;
+      console.log('[Auth-Cookies] Client-side check for phone:', phone);
+      console.log('[Auth-Cookies] Cookie value found:', cookieValue ? 'YES' : 'NO');
     }
     
-    if (!cookieValue) return false;
+    if (!cookieValue) {
+      console.log('[Auth-Cookies] No cookie value found');
+      return false;
+    }
     
     try {
       const deviceData = JSON.parse(decodeURIComponent(cookieValue));
-      return deviceData.phone === phone && deviceData.verified === true;
-    } catch {
+      console.log('[Auth-Cookies] Device data:', deviceData);
+      const isVerified = deviceData.phone === phone && deviceData.verified === true;
+      console.log('[Auth-Cookies] Verification result:', isVerified);
+      return isVerified;
+    } catch (error) {
+      console.log('[Auth-Cookies] Error parsing cookie:', error);
       return false;
     }
-  } catch {
+  } catch (error) {
+    console.log('[Auth-Cookies] General error:', error);
     return false;
   }
 }

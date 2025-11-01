@@ -21,6 +21,7 @@ interface OrderItem {
     ar: string;
   };
   quantity: number;
+  selectedUnitType?: 'carton' | 'piece';
 }
 
 interface Order {
@@ -69,14 +70,27 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
+      console.log('Fetching orders...');
       const response = await fetch('/api/orders');
+      console.log('Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Orders data received:', data);
+        console.log('Number of orders:', data.orders?.length || 0);
         setOrders(data.orders || []);
         setFilteredOrders(data.orders || []);
+      } else {
+        console.error('Failed to fetch orders:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error details:', errorData);
+        setOrders([]);
+        setFilteredOrders([]);
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
+      setOrders([]);
+      setFilteredOrders([]);
     } finally {
       setIsLoading(false);
     }
@@ -359,19 +373,13 @@ export default function OrdersPage() {
                       • {item.productName?.[language] || item.productName?.en || item.product.nameEn}
                     </span>
                     <span className="font-semibold text-purple-600">
-                      {language === 'ar' ? 'الكمية' : 'Qty'}: {item.quantity}
+                      {item.quantity} {item.selectedUnitType === 'carton' 
+                        ? (language === 'ar' ? 'كرتون' : 'cartons')
+                        : (language === 'ar' ? 'قطعة' : 'pieces')
+                      }
                     </span>
                   </div>
                 ))}
-              </div>
-
-              <div className="flex items-center justify-between pt-3 border-t">
-                <span className="font-semibold text-gray-700">
-                  {language === 'ar' ? 'الإجمالي' : 'Total'}
-                </span>
-                <span className="text-lg font-bold text-purple-600">
-                  {selectedOrder.totalItems} {language === 'ar' ? 'قطعة' : 'pieces'}
-                </span>
               </div>
             </div>
 

@@ -73,6 +73,9 @@ export default function LoginPage() {
           console.log('Verification code:', data.code);
         }
         
+        // Store email for display
+        setVerificationEmail(data.email || '');
+        
         setStep('verify');
         startResendTimer();
       } else {
@@ -145,6 +148,11 @@ export default function LoginPage() {
         // Show verification code for development
         if (data.code && process.env.NODE_ENV === 'development') {
           console.log('Verification code:', data.code);
+        }
+        
+        // Update email if provided
+        if (data.email) {
+          setVerificationEmail(data.email);
         }
         
         setCanResend(false);
@@ -251,12 +259,14 @@ export default function LoginPage() {
               </button>
 
               <h2 className="text-2xl font-bold text-primary-black mb-2 text-center">
-                {t('verifyEmail', language)}
+                {verificationEmail ? t('verifyEmail', language) : t('verifyPhone', language)}
               </h2>
               <p className="text-gray-600 text-center mb-6">
-                {t('verifyEmailDesc', language)}
+                {verificationEmail ? t('verifyEmailDesc', language) : t('verifyPhoneDesc', language)}
                 <br />
-                <span className="font-semibold text-primary-red" dir="ltr">{phone}</span>
+                <span className="font-semibold text-primary-red" dir="ltr">
+                  {verificationEmail || phone}
+                </span>
               </p>
 
               <form onSubmit={handleVerify} className="space-y-4">

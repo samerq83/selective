@@ -20,6 +20,7 @@ export async function GET() {
       slug: p.slug,
       image: p.image,
       isAvailable: p.isAvailable,
+      unitType: p.unitType || 'carton',
       order: p.order,
     }));
     
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
-    const { nameEn, nameAr, image, isAvailable } = body;
+    const { nameEn, nameAr, image, isAvailable, unitType } = body;
 
     // Generate slug from English name
     const slug = nameEn.toLowerCase().replace(/\s+/g, '-');
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
       slug,
       image: image || '/images/placeholder.png',
       isAvailable: isAvailable ?? true,
+      unitType: unitType || 'carton',
       order: 0,
     });
 
@@ -65,6 +67,7 @@ export async function POST(request: NextRequest) {
       slug: product.slug,
       image: product.image,
       isAvailable: product.isAvailable,
+      unitType: product.unitType || 'carton',
       order: product.order,
     };
 

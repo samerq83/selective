@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
-import Navbar from '@/components/Navbar';
+import AdminNavbar from '@/components/AdminNavbar';
 import { FiSave, FiX, FiPackage, FiMessageSquare } from 'react-icons/fi';
 
 interface OrderItem {
@@ -167,7 +167,7 @@ export default function AdminEditOrderPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <AdminNavbar />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="spinner"></div>
         </div>
@@ -181,7 +181,7 @@ export default function AdminEditOrderPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
-      <Navbar />
+      <AdminNavbar />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}

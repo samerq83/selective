@@ -80,14 +80,16 @@ export async function sendVerificationEmail(
           }
           .title {
             color: white;
-            font-size: 28px;
+            font-size: 22px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
           }
           .subtitle {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 16px;
+            font-size: 13px;
             margin-bottom: 30px;
+            letter-spacing: 0.3px;
           }
           .code-container {
             background: white;
@@ -96,11 +98,13 @@ export async function sendVerificationEmail(
             margin: 20px 0;
           }
           .code {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: bold;
             color: #dc2626;
-            letter-spacing: 10px;
-            margin: 20px 0;
+            margin: 15px 0;
+            letter-spacing: 2px;
+            white-space: nowrap;
+            line-height: 1.4;
           }
           .message {
             color: #666;

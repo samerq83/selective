@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t, translations, TranslationKey } from '@/lib/translations';
 import Navbar from '@/components/Navbar';
-import { FiEdit2, FiTrash2, FiClock, FiPackage, FiMessageSquare } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiClock, FiPackage, FiMessageSquare, FiDownload } from 'react-icons/fi';
 
 interface OrderItem {
   product: {
@@ -16,6 +16,7 @@ interface OrderItem {
     image: string;
   };
   quantity: number;
+  selectedUnitType?: 'carton' | 'piece';
 }
 
 interface Order {
@@ -29,6 +30,10 @@ interface Order {
   items: OrderItem[];
   status: 'new' | 'received';
   message?: string;
+  purchaseOrderFile?: {
+    filename: string;
+    path: string;
+  };
   editDeadline: string;
   createdAt: string;
   history: Array<{
@@ -329,7 +334,10 @@ export default function OrderDetailsPage() {
                     </span>
                   </div>
                   <span className="font-semibold text-gray-900">
-                    {item.quantity} {t('pieces', language)}
+                    {item.quantity} {item.selectedUnitType === 'carton' 
+                      ? (language === 'ar' ? 'كرتون' : 'carton')
+                      : t('pieces', language)
+                    }
                   </span>
                 </div>
               ))}
@@ -339,7 +347,12 @@ export default function OrderDetailsPage() {
           <div className="mt-4 pt-4 border-t">
             <div className="flex justify-between items-center text-lg font-bold">
               <span>{t('totalItems', language)}:</span>
-              <span className="text-primary-red">{getTotalItems()} {t('pieces', language)}</span>
+              <span className="text-primary-red">
+                {getTotalItems()} {order?.items?.[0]?.selectedUnitType === 'carton' 
+                  ? (language === 'ar' ? 'كرتون' : 'carton')
+                  : t('pieces', language)
+                }
+              </span>
             </div>
           </div>
         </div>
@@ -364,6 +377,42 @@ export default function OrderDetailsPage() {
             </p>
           )}
         </div>
+
+        {/* Purchase Order File */}
+        {order.purchaseOrderFile && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <FiDownload className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+              {language === 'ar' ? 'طلب الشراء' : 'Purchase Order'}
+            </h2>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-gray-900">
+                  {order.purchaseOrderFile.filename}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {language === 'ar' ? 'ملف طلب الشراء المرفق' : 'Attached purchase order file'}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  if (order.purchaseOrderFile?.path) {
+                    const link = document.createElement('a');
+                    link.href = order.purchaseOrderFile.path;
+                    link.download = order.purchaseOrderFile.filename || 'purchase-order';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }
+                }}
+                className="btn-primary flex items-center gap-2"
+              >
+                <FiDownload />
+                {language === 'ar' ? 'تحميل' : 'Download'}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex gap-4 flex-wrap">

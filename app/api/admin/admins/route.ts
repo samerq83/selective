@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readDB, writeDB, findUserByPhone, findUserByEmail } from '@/lib/simple-db';
+import { getAdminsFromMongoDB, createAdminInMongoDB } from '@/lib/admin-mongodb';
 import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -8,17 +8,7 @@ export async function GET() {
   try {
     await requireAdmin();
     
-    const db = readDB();
-    const admins = db.users
-      .filter(u => u.isAdmin)
-      .map(u => ({
-        id: u.id,
-        phone: u.phone,
-        name: u.name,
-        email: u.email,
-        isActive: u.isActive,
-        lastLogin: u.lastLogin,
-      }));
+    const admins = await getAdminsFromMongoDB();
     
     return NextResponse.json(admins);
   } catch (error: any) {
@@ -53,38 +43,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if phone already exists
-    const existingUserByPhone = findUserByPhone(phone);
-    if (existingUserByPhone) {
-      return NextResponse.json(
-        { error: 'Phone number already exists' },
-        { status: 400 }
-      );
-    }
-
-    // Check if email already exists
-    const existingUserByEmail = findUserByEmail(email);
-    if (existingUserByEmail) {
-      return NextResponse.json(
-        { error: 'Email already exists' },
-        { status: 400 }
-      );
-    }
-
-    const db = readDB();
-    const newAdmin = {
-      id: (db.users.length + 1).toString(),
+    const newAdmin = await createAdminInMongoDB({
       phone,
       name,
       email,
-      address: '',
-      companyName: '',
       isAdmin: isAdmin ?? true,
       isActive: isActive ?? true,
-    };
-
-    db.users.push(newAdmin);
-    writeDB(db);
+    });
 
     return NextResponse.json({ admin: newAdmin }, { status: 201 });
   } catch (error: any) {
@@ -94,6 +59,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: error.message },
         { status: 403 }
+      );
+    }
+
+    if (error.message === 'Phone number already exists' || error.message === 'Email already exists') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
       );
     }
     
