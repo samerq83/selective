@@ -86,3 +86,43 @@ The `/api/admin/stats` endpoint was not aware of the user's language preference,
 ✅ Admin dashboard now displays product names in the correct language matching UI language
 ✅ Chart updates automatically when user switches languages
 ✅ Gracefully handles missing product data by filtering out "Unknown" entries
+
+## File Storage Migration to MongoDB (Nov 2024)
+
+### Problem
+Netlify doesn't allow permanent file writes to the filesystem. Files written during API calls disappear on server restart or redeployment, causing `ERR_CONNECTION_CLOSED` errors when uploading purchase order files.
+
+### Solution Implemented
+**1. Data Model Changes (`/models/Order.ts`)**
+- Extended `purchaseOrderFile` object with new fields:
+  - `contentType?: string` - MIME type of the file (e.g., application/pdf)
+  - `data?: string` - Base64 encoded binary file data
+  - `uploadedAt?: Date` - Timestamp of file upload
+- Kept `path?: string` as optional for backward compatibility with existing data
+
+**2. API Changes (`/app/api/orders/route.ts`)**
+- Removed filesystem operations (writeFile, mkdir, path imports)
+- Modified file handling to convert uploaded files to Base64
+- Store file data directly in MongoDB document instead of filesystem
+- Files are persisted with order data in MongoDB
+
+**3. New Download Endpoint (`/app/api/orders/download-file/route.ts`)**
+- GET `/api/orders/download-file?orderId=<ORDER_ID>`
+- Retrieves file from MongoDB
+- Decodes Base64 data to binary
+- Returns file with proper MIME type and attachment headers
+- Includes authorization checks (user or admin only)
+- Handles missing files gracefully
+
+### Technical Details
+- Files are Base64 encoded for MongoDB compatibility
+- Binary data preserved exactly through encode/decode cycle
+- No file system access required - works on Netlify
+- Backward compatible with existing orders (optional fields)
+
+### Result
+✅ File uploads now work on Netlify without ERR_CONNECTION_CLOSED
+✅ Files persist permanently in MongoDB with order data
+✅ No temporary file cleanup issues
+✅ Full backward compatibility with existing data
+✅ Proper Content-Type headers for file downloads

@@ -29,10 +29,7 @@ export interface IOrder extends Document {
   message?: string;
   purchaseOrderFile?: {
     filename: string;
-    path?: string; // 🔄 Optional for backward compatibility
-    contentType?: string; // 📄 MIME type
-    data?: string; // 📦 Base64 encoded file data
-    uploadedAt?: Date;
+    path: string;
   };
   canEdit: boolean;
   editDeadline?: Date;
@@ -101,10 +98,7 @@ const OrderSchema: Schema<IOrder> = new Schema(
     },
     purchaseOrderFile: {
       filename: String,
-      path: String, // 🔄 Optional for backward compatibility
-      contentType: String, // 📄 MIME type (e.g., application/pdf)
-      data: String, // 📦 Base64 encoded file data
-      uploadedAt: Date, // ⏰ Upload timestamp
+      path: String,
     },
     canEdit: {
       type: Boolean,

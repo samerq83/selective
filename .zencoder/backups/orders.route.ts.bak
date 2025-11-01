@@ -6,6 +6,8 @@ import User from '@/models/User';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
 import mongoose from 'mongoose';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 
 export const dynamic = 'force-dynamic';
 
@@ -222,25 +224,24 @@ export async function POST(request: NextRequest) {
         const bytes = await fileData.arrayBuffer();
         const buffer = Buffer.from(bytes);
         
-        // 📦 Convert to base64 for MongoDB storage
-        const base64Data = buffer.toString('base64');
+        const uploadsDir = join(process.cwd(), 'public', 'uploads', 'purchase-orders');
+        await mkdir(uploadsDir, { recursive: true });
+        
+        const timestamp = Date.now();
+        const fileExtension = fileData.name.split('.').pop();
+        const filename = `${user._id}_${timestamp}.${fileExtension}`;
+        const filepath = join(uploadsDir, filename);
+        
+        await writeFile(filepath, buffer);
         
         purchaseOrderFile = {
           filename: fileData.name,
-          contentType: fileData.type || 'application/octet-stream',
-          data: base64Data,
-          uploadedAt: new Date(),
+          path: `/uploads/purchase-orders/${filename}`,
         };
         
-        console.log('[Orders API] File prepared for MongoDB storage:', {
-          filename: fileData.name,
-          contentType: fileData.type,
-          size: buffer.length,
-          base64Size: base64Data.length,
-        });
+        console.log('[Orders API] File uploaded successfully:', purchaseOrderFile);
       } catch (fileError: any) {
-        console.error('[Orders API] File processing error:', fileError);
-        // Continue without file if processing fails
+        console.error('[Orders API] File upload error:', fileError);
       }
     }
 
