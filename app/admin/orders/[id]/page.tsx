@@ -372,14 +372,8 @@ export default function AdminOrderDetailsPage() {
                 </div>
                 <button
                   onClick={() => {
-                    if (order.purchaseOrderFile?.path) {
-                      const link = document.createElement('a');
-                      link.href = order.purchaseOrderFile.path;
-                      link.download = order.purchaseOrderFile.filename || 'purchase-order';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }
+                    // Use the new MongoDB-based download API
+                    window.location.href = `/api/orders/download-file?orderId=${order._id}`;
                   }}
                   className="btn-primary flex items-center gap-2 no-print"
                 >

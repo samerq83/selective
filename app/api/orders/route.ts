@@ -219,12 +219,24 @@ export async function POST(request: NextRequest) {
     let purchaseOrderFile = undefined;
     if (fileData) {
       try {
+        console.log('[Orders API] Processing file upload:', {
+          name: fileData.name,
+          type: fileData.type,
+          size: fileData.size,
+        });
+
         const bytes = await fileData.arrayBuffer();
         const buffer = Buffer.from(bytes);
         
         // 📦 Convert to base64 for MongoDB storage
         const base64Data = buffer.toString('base64');
         
+        // ✅ VALIDATE: Ensure base64 data is not empty
+        if (!base64Data || base64Data.length === 0) {
+          console.error('[Orders API] ❌ Base64 encoding failed: empty data');
+          throw new Error('Failed to encode file data to base64');
+        }
+
         purchaseOrderFile = {
           filename: fileData.name,
           contentType: fileData.type || 'application/octet-stream',
@@ -232,15 +244,18 @@ export async function POST(request: NextRequest) {
           uploadedAt: new Date(),
         };
         
-        console.log('[Orders API] File prepared for MongoDB storage:', {
+        console.log('[Orders API] ✅ File prepared for MongoDB storage:', {
           filename: fileData.name,
           contentType: fileData.type,
           size: buffer.length,
           base64Size: base64Data.length,
+          hasData: !!purchaseOrderFile.data,
+          dataLength: purchaseOrderFile.data.length,
         });
       } catch (fileError: any) {
-        console.error('[Orders API] File processing error:', fileError);
-        // Continue without file if processing fails
+        console.error('[Orders API] ❌ File processing error:', fileError);
+        // Continue without file if processing fails - don't block order creation
+        purchaseOrderFile = undefined;
       }
     }
 
@@ -279,10 +294,41 @@ export async function POST(request: NextRequest) {
     };
 
     if (purchaseOrderFile) {
+      // ✅ VALIDATE: Double-check file data before saving
+      if (!purchaseOrderFile.data || purchaseOrderFile.data.length === 0) {
+        console.error('[Orders API] ❌ CRITICAL: Attempted to save file without data:', {
+          filename: purchaseOrderFile.filename,
+          hasData: !!purchaseOrderFile.data,
+          dataLength: purchaseOrderFile.data?.length || 0,
+        });
+        return NextResponse.json(
+          { error: 'File upload failed: file data is empty' },
+          { status: 400 }
+        );
+      }
+
       orderData.purchaseOrderFile = purchaseOrderFile;
+      console.log('[Orders API] ✅ File will be saved with order:', {
+        filename: purchaseOrderFile.filename,
+        dataLength: purchaseOrderFile.data.length,
+      });
     }
 
     const order = await Order.create(orderData);
+    
+    // ✅ VERIFY: Check that file was saved correctly
+    if (purchaseOrderFile) {
+      const savedOrder = await Order.findById(order._id).lean();
+      if (savedOrder?.purchaseOrderFile) {
+        console.log('[Orders API] ✅ File verification:', {
+          hasSavedFile: !!savedOrder.purchaseOrderFile,
+          hasData: !!savedOrder.purchaseOrderFile.data,
+          dataLength: savedOrder.purchaseOrderFile.data?.length || 0,
+        });
+      } else {
+        console.error('[Orders API] ❌ CRITICAL: File not found in saved order!');
+      }
+    }
 
     console.log('[Orders API] Order created with ID:', order._id);
 

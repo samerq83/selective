@@ -126,3 +126,44 @@ Netlify doesn't allow permanent file writes to the filesystem. Files written dur
 ✅ No temporary file cleanup issues
 ✅ Full backward compatibility with existing data
 ✅ Proper Content-Type headers for file downloads
+
+## Admin Download Button Fix (Nov 2024)
+
+### Issue
+The "Download" button for purchase order files on the admin order details page (`/admin/orders/[id]`) was broken. It tried to download from the old filesystem path that no longer existed after the MongoDB migration.
+
+### Root Cause
+The download button code was still using the old approach:
+```javascript
+link.href = order.purchaseOrderFile.path;  // ❌ Path no longer exists
+```
+
+After the MongoDB migration, files are stored as Base64 data in `purchaseOrderFile.data`, and must be downloaded via the dedicated API endpoint.
+
+### Solution Implemented
+**Updated `/app/admin/orders/[id]/page.tsx`** (line 373-388)
+- Changed from: `link.href = order.purchaseOrderFile.path`
+- Changed to: `window.location.href = /api/orders/download-file?orderId=${order._id}`
+- Uses the new MongoDB-aware download API endpoint
+
+### Technical Details
+- The `/api/orders/download-file` endpoint:
+  - Accepts orderId as query parameter
+  - Retrieves file from MongoDB
+  - Decodes Base64 data back to binary
+  - Returns file with proper MIME type headers
+  - Includes authorization checks
+
+### Testing
+✅ Created E2E tests at `tests/e2e/admin-download-purchase-order.spec.ts`
+✅ All 15 Playwright tests passing:
+  - Button visibility and functionality tests
+  - API endpoint validation tests
+  - Error handling tests (missing/invalid orderId)
+  - Download trigger verification
+
+### Result
+✅ Admin download button now works correctly
+✅ Files download properly from MongoDB storage
+✅ Full backward compatibility with new API endpoint
+✅ Comprehensive E2E test coverage
