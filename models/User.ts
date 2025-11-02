@@ -56,10 +56,11 @@ const UserSchema: Schema<IUser> = new Schema(
   }
 );
 
-// Index for faster queries
-UserSchema.index({ phone: 1 });
-UserSchema.index({ email: 1 });
+// Indexes for faster queries
+// Note: phone and email have unique: true which creates indexes automatically
+// Only add additional indexes for other fields
 UserSchema.index({ isAdmin: 1 });
+UserSchema.index({ createdAt: -1 });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 

@@ -86,11 +86,14 @@ export async function getAdminStatsFromMongoDB(filter: string = 'today', customD
   }
 
   // Get statistics from MongoDB
+  console.time('[Admin Stats] Database queries');
   const [totalCustomers, ordersInPeriod, newOrders, receivedOrders] = await Promise.all([
     User.countDocuments({ isAdmin: { $ne: true } }),
     Order.find({
       createdAt: { $gte: startDate, $lte: endDate }
-    }).populate('items.product').lean(),
+    })
+      .select('items')  // ✅ Only select items field, not entire document
+      .lean(),
     Order.countDocuments({
       status: 'new',
       createdAt: { $gte: startDate, $lte: endDate }
@@ -100,6 +103,7 @@ export async function getAdminStatsFromMongoDB(filter: string = 'today', customD
       createdAt: { $gte: startDate, $lte: endDate }
     })
   ]);
+  console.timeEnd('[Admin Stats] Database queries');
 
   // Build product stats
   const productStatsMap: { [key: string]: number } = {};
@@ -198,37 +202,56 @@ export async function getCustomersWithStats(page: number = 1, search: string = '
   }
 
   // Get customers
+  console.time('[Admin Customers] Get customers');
   const customers = await User.find(query)
+    .select('phone name companyName email address isActive createdAt lastLogin')  // ✅ Select only needed fields
     .skip(skip)
     .limit(limit)
     .lean();
 
   const totalCustomers = await User.countDocuments(query);
   const totalPages = Math.ceil(totalCustomers / limit);
+  console.timeEnd('[Admin Customers] Get customers');
+
+  // ✅ Get all orders for these customers in ONE query (not N+1)
+  console.time('[Admin Customers] Get orders');
+  const customerIds = customers.map(c => c._id);
+  const allOrders = await Order.find({ customer: { $in: customerIds } })
+    .select('customer createdAt')  // ✅ Only need customer and date
+    .lean();
+  console.timeEnd('[Admin Customers] Get orders');
+
+  // Build a map of customer orders
+  const customerOrdersMap: { [key: string]: any[] } = {};
+  allOrders.forEach(order => {
+    const customerId = order.customer.toString();
+    if (!customerOrdersMap[customerId]) {
+      customerOrdersMap[customerId] = [];
+    }
+    customerOrdersMap[customerId].push(order);
+  });
 
   // Get order statistics for each customer
-  const customersWithStats = await Promise.all(
-    customers.map(async (customer) => {
-      const customerOrders = await Order.find({ customer: customer._id }).lean();
-      const lastOrder = customerOrders.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )[0];
+  const customersWithStats = customers.map((customer) => {
+    const customerOrders = customerOrdersMap[customer._id.toString()] || [];
+    const lastOrder = customerOrders.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )[0];
 
-      return {
-        _id: customer._id,
-        phone: customer.phone,
-        companyName: customer.companyName,
-        name: customer.name,
-        email: customer.email,
-        address: customer.address,
-        isActive: customer.isActive,
-        createdAt: customer.createdAt || new Date(),
-        lastLogin: customer.lastLogin,
-        orderCount: customerOrders.length,
-        lastOrderDate: lastOrder?.createdAt,
-      };
-    })
-  );
+    return {
+      _id: customer._id,
+      phone: customer.phone,
+      companyName: customer.companyName,
+      name: customer.name,
+      email: customer.email,
+      address: customer.address,
+      isActive: customer.isActive,
+      createdAt: customer.createdAt || new Date(),
+      lastLogin: customer.lastLogin,
+      orderCount: customerOrders.length,
+      lastOrderDate: lastOrder?.createdAt,
+    };
+  });
 
   // Sort by order count (most active first)
   customersWithStats.sort((a, b) => b.orderCount - a.orderCount);
@@ -442,17 +465,37 @@ export async function deleteAdminFromMongoDB(adminId: string) {
 export async function getReportDataFromMongoDB(startDate: Date, endDate: Date) {
   await dbConnect();
 
-  // Adjust dates
+  // Adjust dates to include full days
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
   
+  // Add 1 day to end date and set to midnight (so we get all of endDate)
   const end = new Date(endDate);
-  end.setHours(23, 59, 59, 999);
+  end.setDate(end.getDate() + 1);
+  end.setHours(0, 0, 0, 0);
+
+  console.log('[Admin Reports] Date range adjusted:', { 
+    originalStart: startDate, 
+    originalEnd: endDate,
+    adjustedStart: start, 
+    adjustedEnd: end,
+    startISO: start.toISOString(),
+    endISO: end.toISOString()
+  });
 
   // Get filtered orders
   const filteredOrders = await Order.find({
-    createdAt: { $gte: start, $lte: end }
+    createdAt: { $gte: start, $lt: end }
   }).populate('customer', 'name phone companyName').lean();
+
+  console.log('[Admin Reports] Filtered orders count:', filteredOrders.length);
+  if (filteredOrders.length > 0) {
+    console.log('[Admin Reports] First order:', {
+      _id: filteredOrders[0]._id,
+      createdAt: filteredOrders[0].createdAt,
+      customer: (filteredOrders[0].customer as any)?.name
+    });
+  }
 
   // Daily Orders Trend
   const dailyOrdersMap: { [date: string]: { count: number; items: number } } = {};
@@ -639,6 +682,9 @@ export async function getAdminOrders(params: AdminOrdersParams = {}): Promise<Ad
   // Search filter (search in customer name or order ID)
   if (search) {
     // First, try to find matching customers by name or phone
+    console.log('[Admin Orders] Searching for:', search);
+    console.time('[Admin Orders] Customer search');
+    
     const matchingCustomers = await User.find({
       $or: [
         { name: { $regex: search, $options: 'i' } },
@@ -646,11 +692,13 @@ export async function getAdminOrders(params: AdminOrdersParams = {}): Promise<Ad
       ]
     }).select('_id').lean();
 
+    console.timeEnd('[Admin Orders] Customer search');
+
     const customerIds = matchingCustomers.map(c => c._id);
     
     // Search in order ID or matching customers
     filter.$or = [
-      { _id: { $regex: search, $options: 'i' } },
+      { orderNumber: { $regex: search, $options: 'i' } },  // ✅ Search by order number instead of _id
       { customer: { $in: customerIds } }
     ];
   }
@@ -659,16 +707,22 @@ export async function getAdminOrders(params: AdminOrdersParams = {}): Promise<Ad
   const skip = (page - 1) * limit;
 
   // Get total count for pagination
+  console.time('[Admin Orders] Count documents');
   const total = await Order.countDocuments(filter);
+  console.timeEnd('[Admin Orders] Count documents');
+  
   const totalPages = Math.ceil(total / limit);
 
-  // Get orders with populated customer data
+  // ✅ Optimized: limit the fields we fetch to improve query performance
+  console.time('[Admin Orders] Get orders');
   const orders = await Order.find(filter)
     .populate('customer', 'name phone email companyName')
+    .select('_id orderNumber status customer items totalItems message createdAt updatedAt purchaseOrderFile')  // ✅ Select specific fields
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
     .lean();
+  console.timeEnd('[Admin Orders] Get orders');
 
   // Format orders for response to match frontend expectations
   const formattedOrders = orders.map(order => {

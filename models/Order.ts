@@ -145,10 +145,10 @@ const OrderSchema: Schema<IOrder> = new Schema(
 );
 
 // Indexes for faster queries
-OrderSchema.index({ orderNumber: 1 });
-OrderSchema.index({ customer: 1 });
-OrderSchema.index({ status: 1 });
-OrderSchema.index({ createdAt: -1 });
+// Note: orderNumber has unique: true which creates an index automatically
+// Only add additional indexes for fields that need faster queries
+OrderSchema.index({ customer: 1, createdAt: -1 });  // Common query: orders by customer sorted by date
+OrderSchema.index({ status: 1, createdAt: -1 });    // Common query: filter by status and sort by date
 OrderSchema.index({ 'items.product': 1 });
 
 // Generate order number before saving

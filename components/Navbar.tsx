@@ -13,26 +13,58 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
 
+  // ✅ Lazy loading: only load notifications when user opens the dropdown
+  // ✅ Polling: update every 30 seconds only if dropdown is open
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+
+    let interval: NodeJS.Timeout | null = null;
+    
+    if (showNotifications) {
+      // If dropdown is open, fetch immediately and then poll
       fetchNotifications();
-      // Poll for new notifications every 30 seconds
-      const interval = setInterval(fetchNotifications, 30000);
-      return () => clearInterval(interval);
+      interval = setInterval(fetchNotifications, 30000);
     }
-  }, [user]);
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [user, showNotifications]);
 
   const fetchNotifications = async () => {
+    // ✅ Caching: don't fetch if we fetched less than 5 seconds ago
+    const now = Date.now();
+    if (now - lastFetchTime < 5000 && notifications.length > 0) {
+      console.log('[Navbar] Using cached notifications (fetched less than 5 seconds ago)');
+      return;
+    }
+
+    if (isFetching) {
+      console.log('[Navbar] Already fetching notifications, skipping...');
+      return;
+    }
+
     try {
+      setIsFetching(true);
+      console.time('[Navbar] Fetch notifications time');
       const response = await fetch('/api/notifications');
+      console.timeEnd('[Navbar] Fetch notifications time');
+      
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications);
-        setUnreadCount(data.notifications.filter((n: any) => !n.isRead).length);
+        // ✅ Use totalUnread from API (already calculated on server)
+        setUnreadCount(data.totalUnread || data.notifications.filter((n: any) => !n.isRead).length);
+        setLastFetchTime(now);
+        console.log('[Navbar] Notifications updated:', data.notifications.length, 'total, ', data.totalUnread, 'unread');
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
+    } finally {
+      setIsFetching(false);
     }
   };
 

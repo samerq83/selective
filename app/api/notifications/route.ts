@@ -7,20 +7,31 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    console.log('[Notifications] Starting request...');
     const user = await requireAuth();
+    console.log('[Notifications] User ID:', user.userId);
 
     await dbConnect();
 
+    // ✅ Optimized query: select only needed fields for better performance
+    // ✅ Use lean() for better memory usage (documents are plain objects)
+    // ✅ Limit before sort to use index more efficiently
+    console.time('[Notifications] Database query time');
     const notifications = await Notification.find({ user: user.userId })
+      .select('title message type isRead relatedOrder createdAt')
       .sort({ createdAt: -1 })
       .limit(50)
       .lean();
+    console.timeEnd('[Notifications] Database query time');
+
+    console.log('[Notifications] Found', notifications.length, 'notifications');
 
     return NextResponse.json({
       notifications,
+      totalUnread: notifications.filter(n => !n.isRead).length,
     });
   } catch (error) {
-    console.error('Notifications fetch error:', error);
+    console.error('[Notifications] Fetch error:', error);
 
     const status = error instanceof Error && error.message === 'Unauthorized' ? 401 : 500;
 

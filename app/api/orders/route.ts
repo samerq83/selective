@@ -125,9 +125,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     console.log('[Orders API] POST request started');
+    console.log('[Orders API] MONGODB_URI exists:', !!process.env.MONGODB_URI);
+    console.log('[Orders API] NODE_ENV:', process.env.NODE_ENV);
+    
     const authUser = await requireAuth();
     console.log('[Orders API] Auth user for POST:', authUser);
+    
+    console.log('[Orders API] Attempting MongoDB connection...');
     await connectDB();
+    console.log('[Orders API] MongoDB connected successfully');
 
     let items: any[];
     let message: string = '';
@@ -373,7 +379,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ order: formattedOrder }, { status: 201 });
   } catch (error: any) {
-    console.error('Create order error:', error);
+    console.error('[Orders API] Create order error:', {
+      message: error.message,
+      code: error.code,
+      statusCode: error.statusCode,
+      stack: error.stack,
+      fullError: JSON.stringify(error, null, 2),
+    });
     
     if (error.message === 'Unauthorized') {
       return NextResponse.json(
@@ -383,7 +395,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     );
   }

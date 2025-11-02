@@ -19,7 +19,10 @@
     "test:coverage": "jest --coverage",
     "test:scripts": "node scripts/run-migration-tests.js",
     "test:migration": "jest __tests__/scripts",
-    "test:all": "npm run test && npm run test:migration"
+    "test:all": "npm run test && npm run test:migration",
+    "test:e2e": "playwright test",
+    "test:e2e:watch": "playwright test --watch",
+    "test:e2e:debug": "playwright test --debug"
   },
   "keywords": [
     "order-management",

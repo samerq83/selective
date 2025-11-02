@@ -64,8 +64,12 @@ const NotificationSchema: Schema<INotification> = new Schema(
 );
 
 // Indexes for faster queries
+// ✅ Optimized composite index for user + createdAt (most common query)
+NotificationSchema.index({ user: 1, createdAt: -1 });
+// Keep this index for filtering by read status
 NotificationSchema.index({ user: 1, isRead: 1 });
-NotificationSchema.index({ createdAt: -1 });
+// Compound index for unread notifications sorted by date
+NotificationSchema.index({ user: 1, isRead: 1, createdAt: -1 });
 
 const Notification: Model<INotification> =
   mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema);
