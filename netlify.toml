@@ -1,0 +1,34 @@
+# Netlify Configuration for Next.js 14
+
+[build]
+# Build command
+command = "npm run build"
+# Directory to deploy
+publish = ".next"
+# Functions directory
+functions = "netlify/functions"
+
+[dev]
+# Development server settings
+framework = "nextjs"
+command = "npm run dev"
+port = 3000
+publish = ".next"
+targetPort = 3000
+
+[[redirects]]
+# Ensure all routes are handled by Next.js
+from = "/*"
+to = "/index.html"
+status = 200
+
+# Environment variables configuration
+# Note: These should be set in Netlify Dashboard, not in this file
+# Variables include:
+# - MONGODB_URI
+# - JWT_SECRET
+# - NEXTAUTH_SECRET
+# - COOKIE_SECRET
+# - EMAIL_USER
+# - APP_PASSWORD
+# - NEXT_PUBLIC_APP_URL
