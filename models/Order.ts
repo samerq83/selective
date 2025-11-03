@@ -151,9 +151,9 @@ OrderSchema.index({ customer: 1, createdAt: -1 });  // Common query: orders by c
 OrderSchema.index({ status: 1, createdAt: -1 });    // Common query: filter by status and sort by date
 OrderSchema.index({ 'items.product': 1 });
 
-// Generate order number before saving
+// ✅ Generate order number before saving (FALLBACK - should be set by API)
 OrderSchema.pre('save', async function (next) {
-  if (this.isNew) {
+  if (this.isNew && !this.orderNumber) {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -161,12 +161,13 @@ OrderSchema.pre('save', async function (next) {
     
     const count = await mongoose.model('Order').countDocuments({
       createdAt: {
-        $gte: new Date(date.setHours(0, 0, 0, 0)),
-        $lt: new Date(date.setHours(23, 59, 59, 999)),
+        $gte: new Date(date.getTime()),
+        $lt: new Date(new Date(date.getTime()).setHours(23, 59, 59, 999)),
       },
     });
     
     this.orderNumber = `ST${year}${month}${day}-${(count + 1).toString().padStart(4, '0')}`;
+    console.log('[Order Schema] Generated fallback order number:', this.orderNumber);
   }
   next();
 });

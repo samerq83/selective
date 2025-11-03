@@ -262,8 +262,31 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // ✅ Generate order number (BEFORE creating order)
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    // Count orders created today
+    const dateStart = new Date(date);
+    dateStart.setHours(0, 0, 0, 0);
+    const dateEnd = new Date(date);
+    dateEnd.setHours(23, 59, 59, 999);
+    
+    const count = await Order.countDocuments({
+      createdAt: {
+        $gte: dateStart,
+        $lt: dateEnd,
+      },
+    });
+    
+    const orderNumber = `ST${year}${month}${day}-${(count + 1).toString().padStart(4, '0')}`;
+    console.log('[Orders API] Generated order number:', orderNumber);
+
     // Create order in MongoDB
     console.log('[Orders API] Creating order with data:', {
+      orderNumber,
       customer: user._id,
       customerName: user.name || user.phone,
       customerPhone: user.phone,
@@ -275,6 +298,7 @@ export async function POST(request: NextRequest) {
     });
 
     const orderData: any = {
+      orderNumber,
       customer: user._id,
       customerName: user.name || user.phone,
       customerPhone: user.phone,
