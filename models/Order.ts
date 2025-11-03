@@ -151,23 +151,32 @@ OrderSchema.index({ customer: 1, createdAt: -1 });  // Common query: orders by c
 OrderSchema.index({ status: 1, createdAt: -1 });    // Common query: filter by status and sort by date
 OrderSchema.index({ 'items.product': 1 });
 
-// ✅ Generate order number before saving (FALLBACK - should be set by API)
+// ✅ Generate order number before saving (FALLBACK ONLY - should be set by API with atomic counter)
 OrderSchema.pre('save', async function (next) {
   if (this.isNew && !this.orderNumber) {
-    const date = new Date();
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    
-    const count = await mongoose.model('Order').countDocuments({
-      createdAt: {
-        $gte: new Date(date.getTime()),
-        $lt: new Date(new Date(date.getTime()).setHours(23, 59, 59, 999)),
-      },
-    });
-    
-    this.orderNumber = `ST${year}${month}${day}-${(count + 1).toString().padStart(4, '0')}`;
-    console.log('[Order Schema] Generated fallback order number:', this.orderNumber);
+    try {
+      const date = new Date();
+      const year = date.getFullYear().toString().slice(-2);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const dateKey = `${year}${month}${day}`;
+      const counterId = `counter-${dateKey}`;
+      
+      // ✅ ATOMIC: Use OrderCounter for fallback generation
+      const OrderCounter = mongoose.model('OrderCounter');
+      const counter = await OrderCounter.findByIdAndUpdate(
+        counterId,
+        { $inc: { count: 1 } },
+        { new: true, upsert: true }
+      );
+      
+      this.orderNumber = `ST${dateKey}-${counter.count.toString().padStart(4, '0')}`;
+      console.log('[Order Schema] ⚠️ Generated FALLBACK order number:', this.orderNumber);
+    } catch (error) {
+      console.error('[Order Schema] Failed to generate order number:', error);
+      // If counter generation fails, use timestamp-based fallback
+      this.orderNumber = `ST${new Date().getTime()}`;
+    }
   }
   next();
 });

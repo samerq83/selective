@@ -4,6 +4,7 @@ import { getEditDeadline } from '@/lib/utils';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import Order from '@/models/Order';
+import OrderCounter from '@/models/OrderCounter';
 import Product from '@/models/Product';
 import mongoose from 'mongoose';
 
@@ -262,27 +263,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ✅ Generate order number (BEFORE creating order)
+    // ✅ Generate order number with atomic operation (MongoDB's $inc prevents race conditions)
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
+    const dateKey = `${year}${month}${day}`; // e.g., "251103"
+    const counterId = `counter-${dateKey}`; // e.g., "counter-251103"
     
-    // Count orders created today
-    const dateStart = new Date(date);
-    dateStart.setHours(0, 0, 0, 0);
-    const dateEnd = new Date(date);
-    dateEnd.setHours(23, 59, 59, 999);
+    // ✅ ATOMIC: MongoDB's findByIdAndUpdate with $inc is atomic - no race conditions
+    // Multiple concurrent requests will each get unique sequential numbers
+    const counter = await OrderCounter.findByIdAndUpdate(
+      counterId,
+      { $inc: { count: 1 } },
+      { new: true, upsert: true }
+    );
     
-    const count = await Order.countDocuments({
-      createdAt: {
-        $gte: dateStart,
-        $lt: dateEnd,
-      },
-    });
-    
-    const orderNumber = `ST${year}${month}${day}-${(count + 1).toString().padStart(4, '0')}`;
-    console.log('[Orders API] Generated order number:', orderNumber);
+    const nextCount = counter.count;
+    const orderNumber = `ST${dateKey}-${nextCount.toString().padStart(4, '0')}`;
+    console.log('[Orders API] ✅ Generated order number (ATOMIC):', orderNumber, 'Count:', nextCount);
 
     // Create order in MongoDB
     console.log('[Orders API] Creating order with data:', {
