@@ -218,9 +218,6 @@ export async function POST(request: NextRequest) {
       };
     });
 
-    // Generate order number
-    const orderNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-
     // Handle file upload if provided
     let purchaseOrderFile = undefined;
     if (fileData) {
@@ -267,7 +264,6 @@ export async function POST(request: NextRequest) {
 
     // Create order in MongoDB
     console.log('[Orders API] Creating order with data:', {
-      orderNumber,
       customer: user._id,
       customerName: user.name || user.phone,
       customerPhone: user.phone,
@@ -279,7 +275,6 @@ export async function POST(request: NextRequest) {
     });
 
     const orderData: any = {
-      orderNumber,
       customer: user._id,
       customerName: user.name || user.phone,
       customerPhone: user.phone,

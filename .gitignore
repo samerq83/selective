@@ -67,7 +67,18 @@ server.pid
 tsconfig.tsbuildinfo
 
 # Sensitive/temporary files
+.zencoder/
 .zencoder/backups/
 *.bak
 public/uploads/
 public/test-*.html
+
+# Diagnostic and report files
+ADMIN_*.md
+COMPLETE_*.md
+FINAL_*.md
+PERFORMANCE_*.md
+NETLIFY_*.md
+START_*.md
+fix-security.ps1
+*.png

@@ -4,13 +4,6 @@ import { ServerApiVersion } from 'mongodb';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/selective-trading';
 const ALLOW_INSECURE_TLS = process.env.ALLOW_INSECURE_TLS === 'true';
 
-console.log('[MongoDB] Connection details:', {
-  hasURI: !!MONGODB_URI,
-  uriPrefix: MONGODB_URI?.substring(0, 30),
-  environment: process.env.NODE_ENV,
-  uriLength: MONGODB_URI?.length,
-});
-
 if (!MONGODB_URI) {
   console.error('[MongoDB] ❌ CRITICAL: MONGODB_URI is not defined!');
   console.error('[MongoDB] Available env vars:', Object.keys(process.env).filter(k => k.includes('MONGO') || k.includes('mongo')));

@@ -5,8 +5,9 @@
 command = "npm run build"
 # Directory to deploy
 publish = ".next"
-# Functions directory
-functions = "netlify/functions"
+
+[[plugins]]
+package = "@netlify/plugin-nextjs"
 
 [dev]
 # Development server settings
@@ -15,12 +16,6 @@ command = "npm run dev"
 port = 3000
 publish = ".next"
 targetPort = 3000
-
-[[redirects]]
-# Ensure all routes are handled by Next.js
-from = "/*"
-to = "/index.html"
-status = 200
 
 # Environment variables configuration
 # Note: These should be set in Netlify Dashboard, not in this file
