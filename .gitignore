@@ -44,3 +44,30 @@ next-env.d.ts
 
 # database
 /data/db.json
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test results
+test-results/
+/test-results/
+
+# Logs
+*.log
+server.log
+server.error.log
+server.pid
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
+# Sensitive/temporary files
+.zencoder/backups/
+*.bak
+public/uploads/
+public/test-*.html
